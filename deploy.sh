@@ -30,7 +30,7 @@ git add -A
 git commit -m "Publish"
 
 # push
-git push
+git push --set-upstream origin master
 
 #restore state of repo
 git checkout develop
