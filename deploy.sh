@@ -13,8 +13,9 @@ stack exec alyata-blog rebuild
 # make sure local repo is up to date
 git fetch --all
 
-# go to master branch
-git checkout -b master
+# go to master branch - create one if it doesn't exist, otherwise reset the
+# existing master branch
+git checkout -B master
 
 # override the existing files in master with the fresh output
 rsync -a --filter='P _site/'      \
