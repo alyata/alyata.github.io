@@ -6,7 +6,7 @@ import           Hakyll
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith deployConfig $ do
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
@@ -65,4 +65,9 @@ postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
-
+--------------------------------------------------------------------------------
+deployConfig :: Configuration
+deployConfig = defaultConfiguration 
+  {
+    deployCommand = "./deploy.sh"
+  }
