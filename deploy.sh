@@ -15,7 +15,7 @@ git fetch --all
 
 # go to master branch - create one if it doesn't exist, otherwise reset the
 # existing master branch
-git checkout -B master
+git checkout -B master --track origin/master
 
 # override the existing files in master with the fresh output
 rsync -a --filter='P _site/'      \
