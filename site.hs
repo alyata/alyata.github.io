@@ -15,9 +15,9 @@ main = hakyllWith deployConfig $ do
         route   idRoute
         compile compressCssCompiler
 
-    match (fromList ["about.rst", "contact.markdown"]) $ do
+    match "about.html" $ do
         route   $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ getResourceBody
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
@@ -49,7 +49,6 @@ main = hakyllWith deployConfig $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Home"                `mappend`
                     defaultContext
 
             getResourceBody
