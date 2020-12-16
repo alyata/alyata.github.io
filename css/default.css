@@ -2,7 +2,7 @@ body {
     color: black;
     font-size: 16px;
     margin: 0px auto 0px auto;
-    width: 600px;
+    width: 700px;
 }
 
 div#header {
@@ -53,4 +53,25 @@ div.info {
     color: #555;
     font-size: 14px;
     font-style: italic;
+}
+
+/* box around code lines e.g. `<$>` */
+code {
+    background-color: rgb(250, 250, 250);
+    border: 1px solid rgb(200, 200, 200);
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 14px;
+}
+
+/* box around code blocks e.g. 
+ * ```haskell
+ * isUppercase :: Char -> Bool
+ * isUppercase = (`elem` ['a'..'z'])
+ * ``` 
+ * */
+pre code {
+    display: block;
+    padding: 8px;
+    margin-bottom: 2em;
 }
