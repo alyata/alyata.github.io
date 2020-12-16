@@ -5,6 +5,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>My Hakyll Blog - Setting up this blog using Hakyll</title>
         <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
     </head>
     <body>
         <div id="header">
@@ -28,22 +29,47 @@
 </div>
 
 <p>To kick things off, I will write about the birth of this blog. I decided to use Hakyll, which is a static site generator written in Haskell. It uses its own domain-specific language (DSL) for configuration, hosted within Haskell.</p>
-<p>FYI: I wrote this in a Google docs and then transferred it to a real blog post once the site was done.</p>
+<p>FYI: I wrote this in a Google docs and then transferred it to a real blog post once the site was set up.</p>
 <h1 id="installation">Installation</h1>
 <p>The setup process started off rather rocky - following the Hakyll tutorial, I ran <code>stack install hakyll</code> and immediately encountered the following error.</p>
-<p>Hakyll seems to be using a much older version of Pandoc than what is available. I tried following the recommended action of adding pandoc-2.10 to my global dependencies, but this seems to lead down a rabbit hole where pandoc-2.10 requires unmatched dependencies which themselves have unmatched dependencies, etc. I also tried setting <code>allow-newer: true</code>, in the hopes that Hakyll will be able to build with a newer version of Pandoc anyway, but alas that was not the case…</p>
-<p>After a Google search for similar problems, the solution seems to be using a different package resolver. Indeed, the stackage page for Hakyll mentions the lts-16.26 resolver (at the time of writing) whereas my resolver on stack is lts-14.17. Therefore to “resolve” the issue, I just had to specify the resolver via <code>stack install hakyll --resolver lts-16.26</code>. Now Hakyll installs successfully!</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode abc"><code class="sourceCode abc"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>Error<span class="ch">:</span> While constructing the build plan, the following exceptions were </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>encountered<span class="ch">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>In the dependencies for hakyll-4.13.4.1<span class="ch">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    pandoc-2.7.3 from stack configuration does not match &gt;=2.10 &amp;&amp; &lt;2.11 <span class="dt">(</span>latest</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>                 matching version is 2.10.1<span class="dt">)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>needed since hakyll is a build target.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>Some different approaches to resolving this<span class="ch">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  * Set 'allow-newer<span class="ch">:</span> true'</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>    in /home/alyta/.stack/config.yaml to ignore all version constraints and </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>    build anyway.</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>  * Recommended action<span class="ch">:</span> try adding the following to your extra-deps</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>    in /home/alyta/.stack/global-project/stack.yaml<span class="ch">:</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>- pandoc-2.10.1@sha256<span class="ch">:2</span>3d7ec480c7cb86740475a419d6ca4819987b6dd23bbae9b50bc3d42a</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a>  7ed2f9f,36933</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a>Plan construction failed.</span></code></pre></div>
+<p>Hakyll seems to be using a much older version of Pandoc than what is available. I tried following the recommended action of adding <code>pandoc-2.10</code> to my global dependencies, but this seems to lead down a rabbit hole where <code>pandoc-2.10</code> requires unmatched dependencies which themselves have unmatched dependencies, etc. I also tried setting <code>allow-newer: true</code>, in the hopes that Hakyll will be able to build with a newer version of Pandoc anyway, but alas that was not the case…</p>
+<p>After a Google search for similar problems, the solution seems to be using a different package resolver. Indeed, the <a href="https://www.stackage.org/package/hakyll">stackage page for Hakyll</a> mentions the <code>lts-16.26</code> resolver (at the time of writing) whereas my resolver on stack is <code>lts-14.17</code>. Therefore to “resolve” the issue, I just had to specify the resolver via <code>stack install hakyll --resolver lts-16.26</code>. Now Hakyll installs successfully!</p>
 <h1 id="initializing-the-site">Initializing the site</h1>
 <p>The next step is to start a github pages repo and initialize a template Hakyll site in it. To start a github pages repo, all I had to do was create a repo with the name <code>alyata.github.io</code>. Then any html files on the repo’s master branch can be accessed by opening <code>alyata.github.io/path/to/file.html</code> on the browser, though it takes a couple minutes to refresh pushed content sometimes. If there is a <code>index.html</code> file on the root of the repo, then this can be accessed just by opening the site <code>alyata.github.io</code>.</p>
 <p>I then cloned the repo and initialized a stack project inside the folder using the existing Hakyll project template: <code>stack new --bare alyata-blog hakyll-template --resolver lts-16.26</code>. Here’s a dissection of the command:</p>
 <ul>
-<li><p>new - create a new project</p></li>
-<li><p>–bare - create the project in the current directory. Default, non-bare behavior is to create a new directory</p></li>
-<li><p>alyata-blog - name of the project. This would be the name of the new directory if –bare was not used</p></li>
-<li><p>hakyll-template - use the Hakyll project template that initializes a bare bones blog site</p></li>
-<li><p>–resolver lts-16.26 - use the same package resolver I installed Hakyll with</p></li>
+<li><p><code>new</code> - create a new project.</p></li>
+<li><p><code>--bare</code> - create the project in the current directory. Default, non-bare behavior is to create a new directory.</p></li>
+<li><p><code>alyata-blog</code> - name of the project. This would be the name of the new directory if –bare was not used.</p></li>
+<li><p><code>hakyll-template</code> - use the Hakyll project template that initializes a bare bones blog site.</p></li>
+<li><p><code>--resolver lts-16.26</code> - use the same package resolver I installed Hakyll with.</p></li>
 </ul>
-<p>This generated a haskell source file along with some directories and configuration files which I committed to a new <code>develop</code> branch. Finally, I compiled the project using <code>stack build</code>. Now the compiled program is the site generator, which generates the html/css files for the actual site. To keep things separate, the code for the generator goes to the <code>develop</code> branch, while the result of running the compiled generator goes to the <code>master</code> branch to be displayed. To do this, I ran the generator, switched back to <code>master</code> branch and copied everything in the output folder <code>_site</code> to the root of the branch. After committing and pushing the freshly copied files, I was able to see the template site online:</p>
+<p>This generated a haskell source file along with some directories and configuration files which I committed to a new <code>develop</code> branch. Finally, I compiled the project using <code>stack build</code>. The compiled program is the site generator, which generates the html/css files for the actual site. I can run the generator by running <code>stack exec alyata-blog build</code>, which will then generate the entire site in the <code>_site</code> folder. This is slightly confusing as both are build commands - just keep in mind that the latter builds the site, and the former builds the builder… (Who watches the watchmen?)</p>
+<p>To keep things separate, the code for the generator goes to the <code>develop</code> branch, while the result of running the compiled generator goes to the <code>master</code> branch to be displayed. To do this, I ran the generator, switched back to <code>master</code> branch and copied everything in the output folder <code>_site</code> to the root of the branch. After committing and pushing the freshly copied files, I was able to see the template site online:</p>
+<figure>
+<img src="../images/screenshot_of_site.png" style="width:100.0%" alt /><figcaption>Screenshot of the template site</figcaption>
+</figure>
 <p>I will have to do this every time I want to deploy a change in the <code>develop</code> branch, which sounds rather tedious. Therefore, my next step was to configure a deploy command for doing all of these steps automatically.</p>
 <h1 id="configuring-deployment">Configuring deployment</h1>
 <h1 id="references">References</h1>
