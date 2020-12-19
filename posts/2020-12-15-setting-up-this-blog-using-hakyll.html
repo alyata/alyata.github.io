@@ -68,16 +68,72 @@
 </ul>
 <p>This generated a haskell source file along with some directories and configuration files which I committed to a new <code>develop</code> branch. Finally, I compiled the project using <code>stack build</code>. The compiled program is the site generator, which generates the html/css files for the actual site. I can run the generator by running <code>stack exec alyata-blog build</code>, which will then generate the entire site in the <code>_site</code> folder. This is slightly confusing as both are build commands - just keep in mind that the latter builds the site, and the former builds the builder… (Who watches the watchmen?)</p>
 <p>To keep things separate, the code for the generator goes to the <code>develop</code> branch, while the result of running the compiled generator goes to the <code>master</code> branch to be displayed. To do this, I ran the generator, switched back to <code>master</code> branch and copied everything in the output folder <code>_site</code> to the root of the branch. After committing and pushing the freshly copied files, I was able to see the template site online:</p>
-<figure>
-<img src="../images/screenshot_of_site.png" style="width:100.0%" alt /><figcaption>Screenshot of the template site</figcaption>
-</figure>
+<p><img src="../images/screenshot_of_site.png" style="width:100.0%" /></p>
 <p>I will have to do this every time I want to deploy a change in the <code>develop</code> branch, which sounds rather tedious. Therefore, my next step was to configure a deploy command for doing all of these steps automatically.</p>
 <h1 id="configuring-deployment">Configuring deployment</h1>
-<h1 id="references">References</h1>
-<ul>
-<li>https://jaspervdj.be/hakyll/tutorials/01-installation.html</li>
-<li>https://jaspervdj.be/hakyll/tutorials/github-pages-tutorial.html</li>
-</ul>
+<p>The deployment script is as follows, which is largely adapted from the github pages tutorial on the hakyll site. Hopefully the script itself is self-explanatory.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="co"># deploys the site to the master branch</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co"># store uncommited changes</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="fu">git</span> stash</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co"># make sure we are in develop branch</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="fu">git</span> checkout develop</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="co"># build the latest changes</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="ex">stack</span> build</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a><span class="ex">stack</span> exec alyata-blog rebuild</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a><span class="co"># make sure local repo is up to date</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a><span class="fu">git</span> fetch --all</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a><span class="co"># go to master branch - create one if it doesn't exist, otherwise reset the</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a><span class="co"># existing master branch</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a><span class="fu">git</span> checkout -B master --track origin/master</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a><span class="co"># override the existing files in master with the fresh output</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a><span class="fu">rsync</span> -a --filter=<span class="st">'P _site/'</span>      <span class="kw">\</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a>         <span class="ex">--filter</span>=<span class="st">'P _cache/'</span>     <span class="kw">\</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a>         <span class="ex">--filter</span>=<span class="st">'P .git/'</span>       <span class="kw">\</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a>         <span class="ex">--filter</span>=<span class="st">'P .gitignore'</span>  <span class="kw">\</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true"></a>         <span class="ex">--filter</span>=<span class="st">'P .stack-work'</span> <span class="kw">\</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true"></a>         <span class="ex">--delete-excluded</span>        <span class="kw">\</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true"></a>         <span class="ex">_site/</span> .</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true"></a><span class="co"># commit</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true"></a><span class="fu">git</span> add -A</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true"></a><span class="fu">git</span> commit -m <span class="st">&quot;Publish&quot;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true"></a><span class="co"># push</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true"></a><span class="fu">git</span> push --set-upstream origin master</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true"></a><span class="co"># restore state of repo</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true"></a><span class="fu">git</span> checkout develop</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true"></a><span class="fu">git</span> branch -D master</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true"></a><span class="fu">git</span> stash pop</span></code></pre></div>
+<h1 id="finishing-touches">Finishing touches</h1>
+<p>To make the blog not look like it came from the early 2000s, I imported the Bootstrap css which at least makes the fonts nicer, as you see it right now. This is a simple (but really long) one-liner:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">&lt;link</span><span class="ot"> href=</span><span class="st">&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css&quot;</span><span class="ot"> rel=</span><span class="st">&quot;stylesheet&quot;</span><span class="ot"> integrity=</span><span class="st">&quot;sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1&quot;</span><span class="ot"> crossorigin=</span><span class="st">&quot;anonymous&quot;</span><span class="kw">&gt;</span></span></code></pre></div>
+<p>A more up-to-date version of this import can be found on the Bootstrap <a href="https://getbootstrap.com/docs/5.0/getting-started/introduction/">quickstart page</a>.</p>
+<p>I also added syntax highlighting by copying the Pandoc <a href="https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css">syntax highlighting css file</a> from the official hakyll repository. Finally, for the cherry on top I added the following css styles which add borders around code blocks:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode css"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">/* box around inline code */</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>code {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    <span class="kw">background-color</span>: <span class="fu">rgb(</span><span class="dv">250</span><span class="op">,</span> <span class="dv">250</span><span class="op">,</span> <span class="dv">250</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    <span class="kw">border</span>: <span class="dv">1</span><span class="dt">px</span> <span class="dv">solid</span> <span class="fu">rgb(</span><span class="dv">200</span><span class="op">,</span> <span class="dv">200</span><span class="op">,</span> <span class="dv">200</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="kw">padding-left</span>: <span class="dv">4</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>    <span class="kw">padding-right</span>: <span class="dv">4</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>    <span class="kw">font-size</span>: <span class="dv">14</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>}</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="co">/* box around code blocks */</span> </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>pre code {</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>    <span class="kw">display</span>: <span class="dv">block</span><span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>    <span class="kw">padding</span>: <span class="dv">8</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>    <span class="kw">margin-bottom</span>: <span class="dv">2</span><span class="dt">em</span><span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>}</span></code></pre></div>
+<p>And that’s it! It’s still very close to the original template, but this is fine for now because I like the default layout anyway and CSS is a <em>headache</em>.</p>
 
         </div>
         <div id="footer">
