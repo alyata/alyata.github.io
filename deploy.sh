@@ -1,4 +1,5 @@
-# this script is used by the hakyll deploy functionality
+#!/bin/bash
+# deploys the site to the master branch
 
 # store uncommited changes
 git stash
@@ -33,7 +34,7 @@ git commit -m "Publish"
 # push
 git push --set-upstream origin master
 
-#restore state of repo
+# restore state of repo
 git checkout develop
 git branch -D master
 git stash pop

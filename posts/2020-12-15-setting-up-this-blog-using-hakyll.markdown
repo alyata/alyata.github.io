@@ -99,7 +99,7 @@ branch to be displayed. To do this, I ran the generator, switched back to
 of the branch. After committing and pushing the freshly copied files, I was able
 to see the template site online:
 
-![Screenshot of the template site](../images/screenshot_of_site.png){width=100%}
+![](../images/screenshot_of_site.png){width=100%}
 
 I will have to do this every time I want to deploy a change in the `develop` 
 branch, which sounds rather tedious. Therefore, my next step was to configure 
@@ -107,7 +107,89 @@ a deploy command for doing all of these steps automatically.
 
 # Configuring deployment
 
-# References
-- https://jaspervdj.be/hakyll/tutorials/01-installation.html
-- https://jaspervdj.be/hakyll/tutorials/github-pages-tutorial.html
+The deployment script is as follows, which is largely adapted from the github
+pages tutorial on the hakyll site. Hopefully the script itself is
+self-explanatory.
 
+```bash
+#!/bin/bash
+# deploys the site to the master branch
+
+# store uncommited changes
+git stash
+
+# make sure we are in develop branch
+git checkout develop
+
+# build the latest changes
+stack build
+stack exec alyata-blog rebuild
+
+# make sure local repo is up to date
+git fetch --all
+
+# go to master branch - create one if it doesn't exist, otherwise reset the
+# existing master branch
+git checkout -B master --track origin/master
+
+# override the existing files in master with the fresh output
+rsync -a --filter='P _site/'      \
+         --filter='P _cache/'     \
+         --filter='P .git/'       \
+         --filter='P .gitignore'  \
+         --filter='P .stack-work' \
+         --delete-excluded        \
+         _site/ .
+
+# commit
+git add -A
+git commit -m "Publish"
+
+# push
+git push --set-upstream origin master
+
+# restore state of repo
+git checkout develop
+git branch -D master
+git stash pop
+```
+
+# Finishing touches
+
+To make the blog not look like it came from the early 2000s, I imported the
+Bootstrap css which at least makes the fonts nicer, as you see it right now.
+This is a simple (but really long) one-liner:
+
+```html
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+```
+
+A more up-to-date version of this import can be found on the Bootstrap
+[quickstart
+page](https://getbootstrap.com/docs/5.0/getting-started/introduction/).
+
+I also added syntax highlighting by copying the Pandoc [syntax highlighting css
+file](https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css) from
+the official hakyll repository. Finally, for the cherry on top I added the
+following css styles which add borders around code blocks:
+
+```css
+
+/* box around inline code */
+code {
+    background-color: rgb(250, 250, 250);
+    border: 1px solid rgb(200, 200, 200);
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 14px;
+}
+
+/* box around code blocks */ 
+pre code {
+    display: block;
+    padding: 8px;
+    margin-bottom: 2em;
+}
+```
+And that's it! It's still very close to the original template, but this is fine
+for now because I like the default layout anyway and CSS is a *headache*.

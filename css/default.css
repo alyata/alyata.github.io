@@ -70,7 +70,7 @@ div.info {
     font-style: italic;
 }
 
-/* box around code lines e.g. `<$>` */
+/* box around inline code e.g. `<$>` */
 code {
     background-color: rgb(250, 250, 250);
     border: 1px solid rgb(200, 200, 200);
