@@ -46,12 +46,12 @@ etc. I also tried setting `allow-newer: true`, in the hopes that Hakyll will be
 able to build with a newer version of Pandoc anyway, but alas that was not the 
 case...
 
-After a Google search for similar problems, the solution seems to be using a 
-different package resolver. Indeed, the 
-[stackage page for Hakyll](https://www.stackage.org/package/hakyll) mentions the 
-`lts-16.26` resolver (at the time of writing) whereas my resolver on stack is 
-`lts-14.17`. Therefore to "resolve" the issue, I just had to specify the 
-resolver via `stack install hakyll --resolver lts-16.26`. Now Hakyll installs 
+After a Google search for similar problems, the solution seems to be using a
+different package resolver. Indeed, the [stackage page for
+Hakyll](https://www.stackage.org/package/hakyll){target="_blank"} mentions the
+`lts-16.26` resolver (at the time of writing) whereas my resolver on stack is
+`lts-14.17`. Therefore to "resolve" the issue, I just had to specify the
+resolver via `stack install hakyll --resolver lts-16.26`. Now Hakyll installs
 successfully!
 
 # Initializing the site
@@ -166,11 +166,11 @@ This is a simple (but really long) one-liner:
 
 A more up-to-date version of this import can be found on the Bootstrap
 [quickstart
-page](https://getbootstrap.com/docs/5.0/getting-started/introduction/).
+page](https://getbootstrap.com/docs/5.0/getting-started/introduction/){target="_blank"}.
 
 I also added syntax highlighting by copying the Pandoc [syntax highlighting css
-file](https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css) from
-the official hakyll repository. Finally, for the cherry on top I added the
+file](https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css){target="_blank"}
+from the official hakyll repository. Finally, for the cherry on top I added the
 following css styles which add borders around code blocks:
 
 ```css

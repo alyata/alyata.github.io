@@ -1,8 +1,23 @@
+:root {
+  /* Colors inspired by GMK Olivia++ website: www.oliviaplus.plus */
+  --pink: #e8c4b8;
+  --black: #363434;
+  --white: #f0f0f0;
+}
+
+/* The entire site, including the empty left/right bar */
 body {
+    background-color: var(--black);
+    }
+
+/* Just the center of the body containing the actual content */
+div#body {
+    background-color: var(--pink);
     color: black;
     font-size: 16px;
-    margin: 0px auto 0px auto;
-    width: 700px;
+    margin: 0px auto 20px auto;
+    padding: 12px 40px 12px 40px;
+    width: 780px;
 }
 
 div#header {
@@ -72,10 +87,11 @@ div.info {
 
 /* box around inline code e.g. `<$>` */
 code {
-    background-color: rgb(250, 250, 250);
+    background-color: var(--white);/*rgb(250, 250, 250);*/
     border: 1px solid rgb(200, 200, 200);
     padding-left: 4px;
     padding-right: 4px;
+    padding-top: 1px;
     font-size: 14px;
 }
 
