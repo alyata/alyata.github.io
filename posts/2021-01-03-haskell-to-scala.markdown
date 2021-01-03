@@ -351,13 +351,6 @@ Int => (Int => Int)
 When passing in a method to a higher-order function, it will automatically
 expand it for you without having to use an underscore.
 
-# Traits and the diamond inheritance problem
-
-Traits are like a combination of Java interfaces (or Haskell typeclasses) and
-Java abstract classes. They contain a set of fields and methods that a class
-inheriting the trait should have. A field/method can be given a default
-implementation. F
-
 [^1]: This is not technically correct as using `return` is specifically reserved
   for functions, but its nice to think about it like that.
 
