@@ -119,8 +119,8 @@ code {
  * ``` 
  * */
 pre code {
-    display: inline-block;
-    min-width: 100%;
-    padding: 8px;
-    margin-bottom: 0em;
+  display: inline-block;
+  min-width: 100%;
+  padding: 8px;
+  margin-bottom: 0em;
 }
