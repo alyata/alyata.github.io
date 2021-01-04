@@ -154,6 +154,7 @@ code {
   padding-right: 4px;
   padding-top: 1px;
   font-size: 14px;
+  font-family: 'Fira Code', monospace;
 }
 
 /* box around code blocks e.g. 
