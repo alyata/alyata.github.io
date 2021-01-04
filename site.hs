@@ -2,14 +2,21 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid (mappend)
 import           Hakyll
+import           Text.Pandoc.Highlighting (styleToCss)
+import           Data.Aeson (decode)
+import           Data.String (fromString)
+import           Data.Maybe (fromJust)
 
-
---------------------------------------------------------------------------------
+-- Configuration Rules ---------------------------------------------------------
 main :: IO ()
 main = hakyllWith deployConfig $ do
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
+
+    match "css/*.theme" $ do
+        route (setExtension "css")
+        compile kdeSyntaxJsonToCss
 
     match "css/*" $ do
         route   idRoute
@@ -59,14 +66,20 @@ main = hakyllWith deployConfig $ do
     match "templates/*" $ compile templateCompiler
 
 
---------------------------------------------------------------------------------
+-- Auxiliary Values ------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
---------------------------------------------------------------------------------
+
 deployConfig :: Configuration
 deployConfig = defaultConfiguration 
   {
     deployCommand = "./deploy.sh"
   }
+
+-- Decode a KDE syntax highlighting json file into a Pandoc style, and then
+-- convert it to CSS
+kdeSyntaxJsonToCss :: Compiler (Item String)
+kdeSyntaxJsonToCss
+  = fmap (styleToCss . fromJust . decode . fromString) <$> getResourceString
