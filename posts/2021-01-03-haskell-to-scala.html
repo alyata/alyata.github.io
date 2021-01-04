@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="../images/favicon.png">
         <title>Alyata - Learning Scala from a Haskell perspective</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
         <link rel="stylesheet" type="text/css" href="../css/default.css" />
@@ -71,80 +73,76 @@
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="kw">var</span> y = <span class="dv">0</span> <span class="co">//mutable</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>y = <span class="dv">2</span> <span class="co">//legal</span></span></code></pre></div>
-<p>so sticking to <code>val</code> would be good for doing pure functional programming ala Haskell. Here, types are inferred from the values contained in the variables. However, both variable types can be explicitly typed if desired:</p>
+<p>In this example, types are implicitly inferred from the values contained in the variables. However, variable types can be explicitly given if desired:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">val</span> x: Int = <span class="dv">1</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="kw">var</span> y: String = <span class="st">&quot;hello&quot;</span></span></code></pre></div>
-<p>Typed <code>val</code>s correspond very closely to regular typed Haskell expressions, since they cannot be reassigned (although it might still be possible to assign a mutable object to a val - in which case its not immutable “all the way down”).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ot">x ::</span> <span class="dt">Int</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>x <span class="ot">=</span> <span class="dv">1</span></span></code></pre></div>
-<p>On the other hand, <code>var</code>s may be reassigned. The new value must have a type matching the variable, which might be implicitly derived from the original value.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">var</span> y = <span class="dv">1</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>y = <span class="st">&quot;hello&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>error: <span class="kw">type</span> mismatch;</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a> found   : String(<span class="st">&quot;hello&quot;</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a> required: Int</span></code></pre></div>
 <p>The type of a var is fixed upon declaration, but if you allow Scala to infer the type then it will infer the most specific type possible (it seems).</p>
+<p>Sticking to <code>val</code> would be good for doing pure functional programming ala Haskell, since they cannot be reassigned (although it might still be possible to assign a mutable object to a val - in which case its not immutable “all the way”). On the other hand, <code>var</code>s may be reassigned. The new value must have a type matching the variable, which might be implicitly derived from the original value.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">var</span> y = <span class="dv">1</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>y = <span class="st">&quot;hello&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>error: <span class="kw">type</span> mismatch;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a> found   : String(<span class="st">&quot;hello&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a> required: Int</span></code></pre></div>
 <h1 id="control-structures">Control Structures</h1>
 <p>All control structures in Scala return a value <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, because Scala is an expression oriented language. This allows for them to be used flexibly either as “pure” values, or as imperative-style constructs (in which case the <code>unit</code> type is returned, signifying a non-meaningful value). Although, you can always be evil by including side-effects <strong>and</strong> return a value at the same time.</p>
 <h2 id="if-else-case-expressions">If-Else &amp; Case expressions</h2>
 <p>As a first example of flexibility, we can use if-else ala Haskell to define a value.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">// Note to self: remember to bracket your conditional and not use a &quot;then&quot;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="kw">val</span> x = <span class="kw">if</span> (y &lt; <span class="dv">10</span>) y <span class="kw">else</span> <span class="st">&quot;too big&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co">// Note to self: remember to bracket your conditional and not use a &quot;then&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="kw">val</span> x = <span class="kw">if</span> (y &lt; <span class="dv">10</span>) y <span class="kw">else</span> <span class="st">&quot;too big&quot;</span></span></code></pre></div>
 <p>The type of <code>x</code> will be inferred to be <code>Any</code>, the most specific type supertyping both <code>Int</code> and <code>String</code>. If both alternatives had the same type (e.g. <code>Int</code>), then <code>x</code> will be of type <code>Int</code>.</p>
 <p>However, we can also use if-else as an imperative top-level construct:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">// Use brackets to run multiple expressions in body</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="co">// last expression in brackets is the one returned</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="kw">if</span> (y &lt; <span class="dv">10</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>  <span class="fu">println</span>(y)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="kw">else</span> {</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>  <span class="fu">println</span>(<span class="st">&quot;This number is:&quot;</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>  <span class="fu">println</span>(<span class="st">&quot;too big&quot;</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">// Use brackets to run multiple expressions in body</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">// last expression in brackets is the one returned</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">if</span> (y &lt; <span class="dv">10</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>  <span class="fu">println</span>(y)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="kw">else</span> {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>  <span class="fu">println</span>(<span class="st">&quot;This number is:&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>  <span class="fu">println</span>(<span class="st">&quot;too big&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>}</span></code></pre></div>
 <p>Although we don’t use it, this returns the <code>unit</code> type as printing returns no meaningful value.</p>
 <p>This flexibility also applies for case expressions, which uses the keyword <code>match</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="co">// Use it like Haskell case expressions</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="kw">val</span> x = y <span class="kw">match</span> {</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">1</span> | <span class="dv">2</span> | <span class="dv">3</span> =&gt; <span class="st">&quot;small&quot;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">4</span> | <span class="dv">5</span> | <span class="dv">6</span> =&gt; <span class="st">&quot;medium&quot;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>  <span class="kw">case</span> _ =&gt; <span class="st">&quot;large&quot;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>}</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">// Or use it imperatively</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>y <span class="kw">match</span> {</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">1</span> | <span class="dv">2</span> | <span class="dv">3</span> =&gt; <span class="fu">println</span>(<span class="st">&quot;small&quot;</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">4</span> | <span class="dv">5</span> | <span class="dv">6</span> =&gt; <span class="fu">println</span>(<span class="st">&quot;medium&quot;</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>  <span class="kw">case</span> _ =&gt; <span class="fu">println</span>(<span class="st">&quot;large&quot;</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">// Use it like Haskell case expressions</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="kw">val</span> x = y <span class="kw">match</span> {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">1</span> | <span class="dv">2</span> | <span class="dv">3</span> =&gt; <span class="st">&quot;small&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">4</span> | <span class="dv">5</span> | <span class="dv">6</span> =&gt; <span class="st">&quot;medium&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>  <span class="kw">case</span> _ =&gt; <span class="st">&quot;large&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>}</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a><span class="co">// Or use it imperatively</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>y <span class="kw">match</span> {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">1</span> | <span class="dv">2</span> | <span class="dv">3</span> =&gt; <span class="fu">println</span>(<span class="st">&quot;small&quot;</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>  <span class="kw">case</span> <span class="dv">4</span> | <span class="dv">5</span> | <span class="dv">6</span> =&gt; <span class="fu">println</span>(<span class="st">&quot;medium&quot;</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>  <span class="kw">case</span> _ =&gt; <span class="fu">println</span>(<span class="st">&quot;large&quot;</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>}</span></code></pre></div>
 <p>One additional feature is to match different subtypes on each case. This is not possible in Haskell where there is no subtyping. To do this, just add a type annotation on the pattern match:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>y <span class="kw">match</span> {</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="kw">case</span> n: Int =&gt; n + <span class="dv">1</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="kw">case</span> str: String =&gt; str + <span class="st">&quot; + 1&quot;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>  <span class="kw">case</span> x =&gt; x <span class="co">// otherwise, don't modify it</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>y <span class="kw">match</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  <span class="kw">case</span> n: Int =&gt; n + <span class="dv">1</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  <span class="kw">case</span> str: String =&gt; str + <span class="st">&quot; + 1&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>  <span class="kw">case</span> x =&gt; x <span class="co">// otherwise, don't modify it</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>}</span></code></pre></div>
 <h2 id="loops">Loops</h2>
 <p>While loops are purely imperative: they always return the <code>unit</code> type. With the exception of having a (vacuous) return value, they seem to just be good ol’ Java while loops.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">while</span> (y &lt; <span class="dv">10</span>) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>  <span class="fu">println</span>(y)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>  y += <span class="dv">1</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>  <span class="co">// This expression is ignored, while always evaluates to Unit</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>  y</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">while</span> (y &lt; <span class="dv">10</span>) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="fu">println</span>(y)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  y += <span class="dv">1</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>  y <span class="co">// This return value is ignored, while-loop always evaluates to Unit</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>}</span></code></pre></div>
 <p>In Scala, the only for loops are foreach loops. They also return the unit type, although they can pattern match on collection elements unlike Java foreach loops:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">val</span> numberPairs = List((<span class="dv">1</span>,<span class="dv">2</span>),(<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="fu">println</span>(s<span class="st">&quot;$left VS $right&quot;</span>)</span></code></pre></div>
+<p>At first glance, this pattern matching notation (with the arrow and all that) really screams <strong>list comprehension</strong>. Lo and behold, we can use foreach loops as list comprehensions by adding the keyword <code>yield</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">val</span> numberPairs = List((<span class="dv">1</span>,<span class="dv">2</span>),(<span class="dv">3</span>, <span class="dv">4</span>))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="fu">println</span>(s<span class="st">&quot;$left VS $right&quot;</span>)</span></code></pre></div>
-<p>At first glance, this pattern matching notation (with the arrow and all that) really screams <strong>list comprehension</strong>. Lo and behold, we can use foreach loops as list comprehensions by adding the keyword <code>yield</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">val</span> numberPairs = List((<span class="dv">1</span>,<span class="dv">2</span>),(<span class="dv">3</span>, <span class="dv">4</span>))</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="kw">yield</span> left + right</span></code></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="kw">yield</span> left + right</span></code></pre></div>
 <p>This will return a collection of <code>left + right</code>s. And if you really want to be evil? Do other stuff inside the yield before returning:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="kw">yield</span> {</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  <span class="fu">println</span>(left)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>  <span class="fu">println</span>(right)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>  x += lef≡t</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>  left + right</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">for</span> ((left, right) &lt;- numberPairs) <span class="kw">yield</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  <span class="fu">println</span>(left)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>  <span class="fu">println</span>(right)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>  x += lef≡t</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>  left + right</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>}</span></code></pre></div>
 <h2 id="for-loops-and-do-notation">For loops and do notation</h2>
 <p>It turns out, the list comprehension-y feel of for expressions makes a lot of sense. This is because they are just syntactic sugar for a series of calls to the following methods:</p>
 <ul>
@@ -154,17 +152,17 @@
 <li><code>List[A].foreach: (A =&gt; Any) =&gt; Unit</code></li>
 </ul>
 <p>I’m not sure if these are the actual types of the methods (or if they’re even syntactically correct), but I think they carry the concept just fine. These functions are encapsulated in the Iterable trait, which means any class extending the trait can be for looped (notice that the type of <code>flatMap</code> is the same as <code>(&gt;&gt;=)</code>). You can also just implement these methods without becoming an iterable. Anyway, here are <a href="https://stackoverflow.com/questions/1052476/what-is-scalas-yield/1059501#1059501">some examples</a> of desugaring that I found on StackOverflow.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c1; y &lt;- c2; z &lt;-c3) {...}]</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  ≡ c1.<span class="fu">foreach</span>(x =&gt; c2.<span class="fu">foreach</span>(y =&gt; c3.<span class="fu">foreach</span>(z =&gt; {...})))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c1; y &lt;- c2; z &lt;- c3) <span class="kw">yield</span> {...}]</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>  ≡ c1.<span class="fu">flatMap</span>(x =&gt; c2.<span class="fu">flatMap</span>(y =&gt; c3.<span class="fu">map</span>(z =&gt; {...})))</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c; <span class="kw">if</span> cond) <span class="kw">yield</span> {...}]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>  ≡ c.<span class="fu">filter</span>(x =&gt; cond).<span class="fu">map</span>(x =&gt; {...})</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c; y = ...) <span class="kw">yield</span> {...}]</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a>  ≡ c.<span class="fu">map</span>(x =&gt; (x, ...)).<span class="fu">map</span>((x,y) =&gt; {...})</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c1; y &lt;- c2; z &lt;-c3) {...}]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  ≡ c1.<span class="fu">foreach</span>(x =&gt; c2.<span class="fu">foreach</span>(y =&gt; c3.<span class="fu">foreach</span>(z =&gt; {...})))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c1; y &lt;- c2; z &lt;- c3) <span class="kw">yield</span> {...}]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>  ≡ c1.<span class="fu">flatMap</span>(x =&gt; c2.<span class="fu">flatMap</span>(y =&gt; c3.<span class="fu">map</span>(z =&gt; {...})))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c; <span class="kw">if</span> cond) <span class="kw">yield</span> {...}]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>  ≡ c.<span class="fu">filter</span>(x =&gt; cond).<span class="fu">map</span>(x =&gt; {...})</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>desugar[<span class="kw">for</span>(x &lt;- c; y = ...) <span class="kw">yield</span> {...}]</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>  ≡ c.<span class="fu">map</span>(x =&gt; (x, ...)).<span class="fu">map</span>((x,y) =&gt; {...})</span></code></pre></div>
 <p>In particular, notice the parallel between the second example and Haskell’s do-notation:</p>
 <pre><code>for(
   x &lt;- c1
@@ -178,66 +176,66 @@ do
   z &lt;- c3
   return ...</code></pre>
 <p>and their desugarings:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>c1.<span class="fu">flatMap</span>(x =&gt; c2.<span class="fu">flatMap</span>(y =&gt; c3.<span class="fu">map</span>(z =&gt; {...})))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>c1 &gt;&gt;= (x -&gt; c2 &gt;&gt;= (y -&gt; c3 &gt;&gt;= (z -&gt; <span class="kw">return</span> ...)))</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>c1.<span class="fu">flatMap</span>(x =&gt; c2.<span class="fu">flatMap</span>(y =&gt; c3.<span class="fu">map</span>(z =&gt; {...})))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>c1 &gt;&gt;= (x -&gt; c2 &gt;&gt;= (y -&gt; c3 &gt;&gt;= (z -&gt; <span class="kw">return</span> ...)))</span></code></pre></div>
 <p>These are just monads! They’re even exactly the same length! Although the condition does seem to be stronger as filter is required as well. From these examples, I tried to piece together the desugaring mechanism:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk; ...) {...}] </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>      ...</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>      .<span class="fu">foreach</span>((a, c1, ..., cj) =&gt; desugar[<span class="kw">for</span>(...) {...}])</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk; ...) {...}] </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>      ...</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>      .<span class="fu">foreach</span>((a, c1, ..., cj) =&gt; desugar[<span class="kw">for</span>(...) {...}])</span></code></pre></div>
 <p>where each <code>b</code> has to match either <code>c = expr</code> or <code>if cond</code>. <code>c1, ..., cj</code> is the list of assigned variable <code>c</code>s that appear in the <code>b</code>s. Now, here’s how <code>b</code>s are desugared:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="co">// in this context, c1 .. cj are any previous assignments</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>desugar[c = expr] ≡ <span class="fu">map</span>   ((a, c1, ..., cj) =&gt; (a, c1, ..., cj, expr))</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>desugar[<span class="kw">if</span> cond]  ≡ <span class="fu">filter</span>((a, c1, ..., cj) =&gt; cond)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="co">// in this context, c1 .. cj are any previous assignments</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>desugar[c = expr] ≡ <span class="fu">map</span>   ((a, c1, ..., cj) =&gt; (a, c1, ..., cj, expr))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>desugar[<span class="kw">if</span> cond]  ≡ <span class="fu">filter</span>((a, c1, ..., cj) =&gt; cond)</span></code></pre></div>
 <p>We also need a base case:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk) {...}]</span>
+<div class="sourceCode" id="cb17"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk) {...}]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>      ...</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>      .<span class="fu">foreach</span>((a, c1, ..., cj) =&gt; {...})</span></code></pre></div>
+<p>For loops that <code>yield</code> require the use of <code>flatMap</code> and <code>map</code> instead.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk; ...) {...}] </span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a>      ...</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a>      .<span class="fu">foreach</span>((a, c1, ..., cj) =&gt; {...})</span></code></pre></div>
-<p>For loops that <code>yield</code> require the use of <code>flatMap</code> and <code>map</code> instead.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk; ...) {...}] </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>      ...</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a>      .<span class="fu">flatMap</span>((a, c1, ..., cj) =&gt; desugar[<span class="kw">for</span>(...) {...}])</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk) <span class="kw">yield</span> {...}]</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true"></a>      ...</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true"></a>      .<span class="fu">map</span>((a, c1, ..., cj) =&gt; {...})</span></code></pre></div>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a>      .<span class="fu">flatMap</span>((a, c1, ..., cj) =&gt; desugar[<span class="kw">for</span>(...) {...}])</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a>desugar[<span class="kw">for</span> (a &lt;- ma; b1; b2; ...; bk) <span class="kw">yield</span> {...}]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a>  ≡ ma.<span class="fu">desugar</span>[b1]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true"></a>      .<span class="fu">desugar</span>[b2]</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true"></a>      ...</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true"></a>      .<span class="fu">desugar</span>[bk]</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true"></a>      .<span class="fu">map</span>((a, c1, ..., cj) =&gt; {...})</span></code></pre></div>
 <h1 id="functions-vs-methods">Functions VS Methods</h1>
 <p>In Scala, functions are values but methods are not. Functions can be defined using anonymous functions</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="kw">val</span> add = (x: Int, y: Int) =&gt; x + y</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="co">// If you want a curried version:</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a><span class="kw">val</span> add = (x: Int) =&gt; (y: Int) =&gt; x + y</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="kw">val</span> add = (x: Int, y: Int) =&gt; x + y</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="co">// If you want a curried version:</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a><span class="kw">val</span> add = (x: Int) =&gt; (y: Int) =&gt; x + y</span></code></pre></div>
 <p>or placeholder syntax.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">val</span> add = (_: Int) + (_: Int)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="kw">val</span> add = (_: Int) + (_: Int)</span></code></pre></div>
 <p>On the other hand, methods are defined using the <code>def</code> keyword. However, they cannot be assigned to a <code>val</code> or <code>var</code> as they are not values.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="kw">def</span> <span class="fu">addM</span>(x: Int, y: Int) = x + y</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a><span class="kw">val</span> add = addM</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>error: missing argument list <span class="kw">for</span> method addM</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a>       Unapplied methods are only converted to functions when a function <span class="kw">type</span> is</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true"></a>       expected.</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true"></a>       You can make <span class="kw">this</span> conversion explicit by writing `addM _` or `<span class="fu">addM</span>(_,_)` </span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true"></a>       instead of `addM`.</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">def</span> <span class="fu">addM</span>(x: Int, y: Int) = x + y</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="kw">val</span> add = addM</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>error: missing argument list <span class="kw">for</span> method addM</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>       Unapplied methods are only converted to functions when a function <span class="kw">type</span> is</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a>       expected.</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a>       You can make <span class="kw">this</span> conversion explicit by writing `addM _` or `<span class="fu">addM</span>(_,_)` </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a>       instead of `addM`.</span></code></pre></div>
 <p>As mentioned in the error message, methods cannot be assigned to variables, but they can be converted to functions. This conversion can be done by either adding an underscore in front of the function (<code>addM _</code>) or by applying the method to placeholders. The former method is called <a href="https://tpolecat.github.io/2014/06/09/methods-functions.html">η-expansion</a>. We can see how it works by checking the type:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a>:<span class="kw">type</span> addM _</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>(Int, Int) =&gt; Int</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a><span class="co">// Curried version:</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a><span class="kw">def</span> <span class="fu">addM</span>(x: Int)(y: Int) = x + y</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a>:<span class="kw">type</span> addM _</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a>Int =&gt; (Int =&gt; Int)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>:<span class="kw">type</span> addM _</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>(Int, Int) =&gt; Int</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a><span class="co">// Curried version:</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a><span class="kw">def</span> <span class="fu">addM</span>(x: Int)(y: Int) = x + y</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true"></a>:<span class="kw">type</span> addM _</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true"></a>Int =&gt; (Int =&gt; Int)</span></code></pre></div>
 <p>When passing in a method to a higher-order function, it will automatically expand it for you without having to use an underscore.</p>
 <section class="footnotes" role="doc-endnotes">
 <hr />
