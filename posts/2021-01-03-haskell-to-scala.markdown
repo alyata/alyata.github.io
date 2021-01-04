@@ -38,26 +38,23 @@ var y = 0 //mutable
 y = 2 //legal
 ```
 
-so sticking to `val` would be good for doing pure functional programming ala
-Haskell. Here, types are inferred from the values contained in the variables.
-However, both variable types can be explicitly typed if desired:
+In this example, types are implicitly inferred from the values contained
+in the variables.  However, variable types can be explicitly given if
+desired:
 
 ```Scala
 val x: Int = 1
 var y: String = "hello"
 ```
 
-Typed `val`s correspond very closely to regular typed Haskell expressions, since
-they cannot be reassigned (although it might still be possible to assign a
-mutable object to a val - in which case its not immutable "all the way down").
+The type of a var is fixed upon declaration, but if you allow Scala to
+infer the type then it will infer the most specific type possible (it seems).
 
-```Haskell
-x :: Int
-x = 1
-```
-
-On the other hand, `var`s may be reassigned. The new value must have a type
-matching the variable, which might be implicitly derived from the original 
+Sticking to `val` would be good for doing pure functional programming ala
+Haskell, since they cannot be reassigned (although it might still be possible to
+assign a mutable object to a val - in which case its not immutable "all the
+way"). On the other hand, `var`s may be reassigned. The new value must have a
+type matching the variable, which might be implicitly derived from the original
 value.
 
 ```Scala
@@ -68,9 +65,6 @@ error: type mismatch;
  found   : String("hello")
  required: Int
 ```
-
-The type of a var is fixed upon declaration, but if you allow Scala to
-infer the type then it will infer the most specific type possible (it seems).
 
 # Control Structures
 
@@ -151,8 +145,7 @@ while loops.
 while (y < 10) {
   println(y)
   y += 1
-  // This expression is ignored, while always evaluates to Unit
-  y
+  y // This return value is ignored, while-loop always evaluates to Unit
 }
 ```
 
