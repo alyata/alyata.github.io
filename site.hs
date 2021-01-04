@@ -1,11 +1,14 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend)
-import           Hakyll
+import           Data.Aeson               (decode)
+import           Data.Maybe               (fromJust)
+import           Data.Monoid              (mappend)
+import           Data.String              (fromString)
+
 import           Text.Pandoc.Highlighting (styleToCss)
-import           Data.Aeson (decode)
-import           Data.String (fromString)
-import           Data.Maybe (fromJust)
+import           Text.Pandoc.Options
+
+import           Hakyll
 
 -- Configuration Rules ---------------------------------------------------------
 main :: IO ()
@@ -30,7 +33,7 @@ main = hakyllWith deployConfig $ do
 
     match "posts/*" $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ pandocMathCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
@@ -73,10 +76,25 @@ postCtx =
     defaultContext
 
 deployConfig :: Configuration
-deployConfig = defaultConfiguration 
+deployConfig = defaultConfiguration
   {
     deployCommand = "./deploy.sh"
   }
+
+-- Pandoc compiler but with MathJax support
+-- modified from:
+-- http://travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
+pandocMathCompiler :: Compiler (Item String)
+pandocMathCompiler =
+    let mathExtensions = extensionsFromList [Ext_tex_math_dollars,
+                                             Ext_latex_macros]
+        defaultExtensions = writerExtensions defaultHakyllWriterOptions
+        newExtensions = defaultExtensions <> mathExtensions
+        writerOptions = defaultHakyllWriterOptions {
+                          writerExtensions = newExtensions,
+                          writerHTMLMathMethod = MathJax ""
+                        }
+    in pandocCompilerWith defaultHakyllReaderOptions writerOptions
 
 -- Decode a KDE syntax highlighting json file into a Pandoc style, and then
 -- convert it to CSS
