@@ -4,6 +4,8 @@ import           Data.Aeson               (decode)
 import           Data.Maybe               (fromJust)
 import           Data.Monoid              (mappend)
 import           Data.String              (fromString)
+import           Data.Time.Format         (formatTime, defaultTimeLocale)
+import           Data.Time.Clock          (getCurrentTime)
 
 import           Text.Pandoc.Highlighting (styleToCss)
 import           Text.Pandoc.Options
@@ -12,7 +14,9 @@ import           Hakyll
 
 -- Configuration Rules ---------------------------------------------------------
 main :: IO ()
-main = hakyllWith deployConfig $ do
+main = do
+  currentTime <- getCurrentTime
+  hakyllWith deployConfig $ do
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
@@ -68,13 +72,41 @@ main = hakyllWith deployConfig $ do
 
     match "templates/*" $ compile templateCompiler
 
+    create ["sitemap.xml"] $ do
+      route idRoute
+      compile $ do
+        posts <- recentFirst =<< loadAll "posts/*"
+        let matchedPageIdentifiers = ["about.html"]
+        matchedPages <- loadAll $ fromList ["about.html"]
+        createdPages <- (loadAll $ fromList ["archive.html"] :: Compiler [Item String])
+        let pages = posts <> matchedPages
+            pagesCtx = dateField "dateSitemap" "%Y-%m-%dT%H:%M:%S%z"
+                    <> postCtx
+            createdCtx = defaultContext
+                      <> constField "root" root
+                      <> (constField "modified" $
+                                     formatTime defaultTimeLocale
+                                                "%Y-%m-%dT%H:%M:%S%z"
+                                                currentTime)
+            sitemapCtx = constField "root" root
+                      <> listField "pages" pagesCtx (return pages)
+                      <> listField "createdPages" createdCtx (return createdPages)
+        makeItem "" >>= loadAndApplyTemplate "templates/sitemap.xml" sitemapCtx
 
 -- Auxiliary Values ------------------------------------------------------------
-postCtx :: Context String
-postCtx =
-    dateField "date" "%B %e, %Y" `mappend`
-    defaultContext
 
+-- url of this website
+root :: String
+root = "https://alyata.github.io"
+
+-- context values for a post
+postCtx :: Context String
+postCtx = defaultContext
+       <> constField "root" root
+       <> dateField "date" "%B %e, %Y"
+       <> modificationTimeField "modified" "%Y-%m-%dT%H:%M:%S%z"
+
+-- config to deploy website to master branch
 deployConfig :: Configuration
 deployConfig = defaultConfiguration
   {

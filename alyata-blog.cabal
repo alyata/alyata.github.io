@@ -22,4 +22,5 @@ executable alyata-blog
                        pandoc,
                        aeson,
                        aeson-pretty,
-                       bytestring
+                       bytestring,
+                       time
