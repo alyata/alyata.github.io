@@ -7,9 +7,6 @@
         <!--google search verification-->
         <meta name="google-site-verification" content="ssyRAtMxkWxr4l0SjqwduOsQ-hQ65oelQdISVUavsDs" />
         <title>Alyata - Hello</title>
-        <!--mathjax-->
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <!--firacode font-->
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
@@ -20,6 +17,18 @@
         <!--custom styling-->
         <link rel="stylesheet" type="text/css" href="./css/default.css" />
         <link rel="stylesheet" type="text/css" href="./css/syntax.css" />
+        <!--mathjax-->
+        <script>
+        MathJax = {
+          //CommonHTML: {linebreaks: {automatic: true, width: "container"}},
+          tex: {
+            tags: "all",
+            tagSide: "left"
+          },
+        };
+        </script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-svg.js"></script>
     </head>
     <body>
       <div id="body">
@@ -44,6 +53,10 @@
 
 <h2>Recent Posts</h2>
 <ul>
+    
+        <li>
+            <a href="./posts/2021-01-10-primitive-recursion.html">Primitive Recursion in Haskell</a> - January 10, 2021
+        </li>
     
         <li>
             <a href="./posts/2021-01-03-haskell-to-scala.html">Learning Scala from a Haskell perspective</a> - January  3, 2021
