@@ -172,9 +172,10 @@ pre code {
 }
 
 /* enable scrolling in long display equations in mathjax */
-span.math.display>mjx-container>mjx-math.MJX-TEX {
+span.math.display>mjx-container {
   display: inline-block;
-  max-width: 100%;
+  width: 100%;
   overflow: auto;
-  padding: 1px; /* prevents scrollbars on one-line math that fits screen */
+  padding-top: 2px;
+  padding-bottom: 2px;
 }

@@ -37,7 +37,7 @@ main = do
 
     match "posts/*" $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ pandocMathCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
@@ -116,7 +116,6 @@ deployConfig = defaultConfiguration
 -- Pandoc compiler but with MathJax support
 -- modified from:
 -- http://travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
--- apparently you don't need this to use MathJax
 pandocMathCompiler :: Compiler (Item String)
 pandocMathCompiler =
     let mathExtensions = extensionsFromList [Ext_tex_math_dollars,
