@@ -20,7 +20,7 @@ jobs:
       - run: |
           # build the latest changes
           cabal new-install
-          alyata-blog rebuild
+          cabal new-run alyata-blog rebuild
 
           # switch to master branch
           git checkout -B master
