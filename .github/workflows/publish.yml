@@ -8,6 +8,8 @@ jobs:
         with:
           ref: develop
       - uses: haskell/actions/setup@v1
+        with:
+          ghc-version: '8.10'
       - uses: actions/cache@v2
         with:
           path: |
