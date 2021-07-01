@@ -8,13 +8,10 @@ jobs:
         with:
           ref: develop
       - uses: haskell/actions/setup@v1
-        with: 
-          enable-stack: true
-          stack-version: 'latest'
       - run: |
           # build the latest changes
-          stack build
-          stack exec alyata-blog rebuild
+          cabal new-install
+          alyata-blog rebuild
 
           # switch to master branch
           git checkout -B master
