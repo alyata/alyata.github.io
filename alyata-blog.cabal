@@ -19,7 +19,7 @@ executable alyata-blog
   ghc-options:         -threaded
   build-depends:       base >= 4.7 && < 5,
                        hakyll,
-                       pandoc,
+                       pandoc >= 2.0 && < 2.12,
                        aeson,
                        aeson-pretty,
                        bytestring,
