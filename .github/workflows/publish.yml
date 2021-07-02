@@ -22,6 +22,10 @@ jobs:
           cabal new-install
           cabal new-run alyata-blog rebuild
 
+          # setup default credentials
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
           # switch to master branch
           git fetch origin
           git checkout -B master --track origin/master
