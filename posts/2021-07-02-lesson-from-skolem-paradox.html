@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="../images/favicon.png">
+        <!--google search verification-->
+        <meta name="google-site-verification" content="ssyRAtMxkWxr4l0SjqwduOsQ-hQ65oelQdISVUavsDs" />
+        <title>Alyata - A simple lesson from Skolem's "paradox"</title>
+        <!--firacode font-->
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+        <!--fontawesome-->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" />
+        <!--bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+        <!--custom styling-->
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <!--mathjax-->
+        <script>
+        MathJax = {
+          //CommonHTML: {linebreaks: {automatic: true, width: "container"}},
+          tex: {
+            tags: "all",
+            tagSide: "left"
+          },
+        };
+        </script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-svg.js"></script>
+    </head>
+    <body>
+      <div id="body">
+        <div id="header">
+            <div id="logo">
+                <a href="../">Alyata's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>A simple lesson from Skolem's "paradox"</h1>
+
+            <div class="info">
+    Posted on July  2, 2021
+    
+</div>
+
+<p>Here is a lesson that I learned the hard way.</p>
+<p>Skolem’s paradox is the apparent mismatch between the following:</p>
+<ol type="1">
+<li><p><em>Within</em> <span class="math inline">\(\mathbf{ZFC}\)</span>, we may show that nonenumerable sets exist, such as <span class="math inline">\(\mathbb{R}\)</span>. So, there must be uncountably many sets in <span class="math inline">\(\mathbf{ZFC}\)</span>. Let’s call this the “internal view”, as it is a theorem within <span class="math inline">\(\mathbf{ZFC}\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathbf{ZFC}\)</span> is a first order theory. Therefore, by the Löwenheim-Skolem theorem, it has a model <span class="math inline">\(\mathfrak{M}\)</span> with an enumerable domain, i.e. there are only countably many sets in <span class="math inline">\(\mathbf{ZFC}\)</span>. Let’s call this the “external view” as it is a theorem about <span class="math inline">\(\mathbf{ZFC}\)</span>.</p></li>
+</ol>
+<p>So the paradox is the seeming contradiction between the internal view and external view of <span class="math inline">\(\mathbf{ZFC}\)</span>. At first glance, I took this to mean something was deeply wrong with first-order logic or <span class="math inline">\(\mathbf{ZFC}\)</span> or both. But upon further reading, it became clear that this paradox is a fake one, and I fell for it hook, line and sinker.</p>
+<p>To discredit this faux paradox, I will point out and resolve the ambiguity of both the internal and external views.</p>
+<p>Let’s start by tackling the internal view. <span class="math inline">\(\mathbf{ZFC}\)</span> is a formal theory, a collection of sentences composed of symbols. It is <strong>not</strong> a model. Hence, the phrase “there must be uncountably many sets in <span class="math inline">\(\mathbf{ZFC}\)</span>” is, by itself, meaningless. To read a meaning out of the phrase, you must implicitly assume an interpretation/model of the symbols in <span class="math inline">\(\mathbf{ZFC}\)</span>, a personal bias of what the symbols mean to <strong>you</strong>, which is that <span class="math inline">\(\mathbf{ZFC}\)</span> is a theory of pure sets. Let’s call this implicit interpretation <span class="math inline">\(\mathfrak{S}\)</span>. In this interpretation, the internal view holds.</p>
+<p>Now in the second point, we invoked the Löwenheim-Skolem theorem to explicitly put forward a different, maybe even esoteric interpretation <span class="math inline">\(\mathfrak{M}\)</span> with an enumerable domain. Calling the objects in this domain “sets”, the external view must hold of <span class="math inline">\(\mathfrak{M}\)</span>.</p>
+<p>But as the internal and external views are statements about different models, they are therefore mutually independent. No paradox.</p>
+<p>The real problem is this: we constructed <span class="math inline">\(\mathbf{ZFC}\)</span> to precisely capture just the notion of pure sets (which has to be nonenumerable) yet the Löwenheim-Skolem theorem means it also captures additional unwanted notions. We cannot change the first order theory we use as the Löwenheim-Skolem theorem applies just as well to any theory. So first order logic must be incapable of exactly capturing the notion of pure sets. But this is a different problem altogether for another day.</p>
+<p><strong>TL;DR:</strong> The lesson is that formal theories are just symbols - don’t read too much meaning into what the symbols mean.</p>
+
+        </div>
+        <div id="footer">
+          <div id="github-link">
+            <a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
+          </div>
+          <div id="hakyll-link">
+            Site proudly generated by 
+            <a target="_blank" href="http://jaspervdj.be/hakyll">Hakyll</a>
+          </div>
+        </div>
+      </div>
+    </body>
+</html>
