@@ -69,56 +69,56 @@ id^2_2(x_1, x_2) &amp;= x_2
 \end{aligned}\]</span></p>
 <p>and so on, <em>ad infinitum</em>. Or really, <em>ad nauseam</em> because we’ll only be dealing with functions with at most 4 arguments this time around.</p>
 <p>So how does this look in Haskell? Before we start, the first thing we need to do is make our own natural numbers data type, using the Peano definition:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Nat</span> <span class="ot">=</span> <span class="dt">Zero</span> <span class="op">|</span> <span class="dt">Succ</span> <span class="dt">Nat</span> <span class="kw">deriving</span> <span class="dt">Eq</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Nat</span> <span class="ot">=</span> <span class="dt">Zero</span> <span class="op">|</span> <span class="dt">Succ</span> <span class="dt">Nat</span> <span class="kw">deriving</span> <span class="dt">Eq</span></span></code></pre></div>
 <p>So <code>Succ (Succ (Succ Zero))</code> would be <code>3</code>, for example. To make our lives easier, we can also implement convenience functions which let us use integer literals to define <code>Nat</code> constants, as well as print them as regular integers.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">Nat</span> <span class="kw">where</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="fu">fromInteger</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">Zero</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  <span class="fu">fromInteger</span> x <span class="ot">=</span> <span class="kw">if</span> x <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">then</span> <span class="dt">Succ</span> <span class="op">$</span> <span class="fu">fromInteger</span> (x <span class="op">-</span> <span class="dv">1</span>) <span class="kw">else</span> <span class="fu">undefined</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  <span class="co">-- leave all the other instance functions undefined for now, we will implement</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="co">-- them later using primitive recursion</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>λ<span class="op">&gt;</span> <span class="dv">3</span><span class="ot"> ::</span> <span class="dt">Nat</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="dt">Succ</span> (<span class="dt">Succ</span> (<span class="dt">Succ</span> <span class="dt">Zero</span>))</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="co">-- not good enough, we also want to print Nats nicely</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Nat</span> <span class="kw">where</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>  <span class="fu">show</span> n <span class="ot">=</span> <span class="fu">show</span> (<span class="fu">toInt</span> n)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>    <span class="kw">where</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a><span class="ot">      toInt ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>      <span class="fu">toInt</span> <span class="dt">Zero</span>     <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>      <span class="fu">toInt</span> (<span class="dt">Succ</span> n) <span class="ot">=</span> <span class="fu">succ</span> (<span class="fu">toInt</span> n)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>λ<span class="op">&gt;</span> <span class="dv">3</span><span class="ot"> ::</span> <span class="dt">Nat</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a><span class="dv">3</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">Nat</span> <span class="kw">where</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">Zero</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> x <span class="ot">=</span> <span class="kw">if</span> x <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">then</span> <span class="dt">Succ</span> <span class="op">$</span> <span class="fu">fromInteger</span> (x <span class="op">-</span> <span class="dv">1</span>) <span class="kw">else</span> <span class="fu">undefined</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- leave all the other instance functions undefined for now, we will implement</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- them later using primitive recursion</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>λ<span class="op">&gt;</span> <span class="dv">3</span><span class="ot"> ::</span> <span class="dt">Nat</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">Succ</span> (<span class="dt">Succ</span> (<span class="dt">Succ</span> <span class="dt">Zero</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- not good enough, we also want to print Nats nicely</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Nat</span> <span class="kw">where</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show</span> n <span class="ot">=</span> <span class="fu">show</span> (<span class="fu">toInt</span> n)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ot">      toInt ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">toInt</span> <span class="dt">Zero</span>     <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">toInt</span> (<span class="dt">Succ</span> n) <span class="ot">=</span> <span class="fu">succ</span> (<span class="fu">toInt</span> n)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>λ<span class="op">&gt;</span> <span class="dv">3</span><span class="ot"> ::</span> <span class="dt">Nat</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span></code></pre></div>
 <p>Now, I can give the definitions of the primitive functions. I tried to make it as close to mathematical notation as possible, so all the functions are uncurried and I write my parameters in brackets.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ot">z ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>z(_) <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="ot">s ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>s(n) <span class="ot">=</span> <span class="dt">Succ</span>(n) <span class="co">-- notice that I don't use (+). It hasn't been defined!</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="ot">id_1_1 ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>id_1_1(a) <span class="ot">=</span> a</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>id_2_1,<span class="ot"> id_2_2 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>id_2_1(a, _) <span class="ot">=</span> a</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>id_2_2(_, b) <span class="ot">=</span> b</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>id_3_1, id_3_2,<span class="ot"> id_3_3 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>id_3_1(a, _, _) <span class="ot">=</span> a</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a>id_3_2(_, b, _) <span class="ot">=</span> b</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a>id_3_3(_, _, c) <span class="ot">=</span> c</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a>id_4_1, id_4_2, id_4_3,<span class="ot"> id_4_4 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true"></a>id_4_1(a, _, _, _) <span class="ot">=</span> a</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true"></a>id_4_2(_, b, _, _) <span class="ot">=</span> b</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true"></a>id_4_3(_, _, c, _) <span class="ot">=</span> c</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true"></a>id_4_4(_, _, _, d) <span class="ot">=</span> d</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true"></a></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true"></a><span class="co">-- ad nauseam...</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true"></a><span class="co">-- use default id to mean id_1_1</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true"></a><span class="fu">id</span> <span class="ot">=</span> id_1_1</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">z ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>z(_) <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ot">s ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>s(n) <span class="ot">=</span> <span class="dt">Succ</span>(n) <span class="co">-- notice that I don't use (+). It hasn't been defined!</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ot">id_1_1 ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>id_1_1(a) <span class="ot">=</span> a</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>id_2_1,<span class="ot"> id_2_2 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>id_2_1(a, _) <span class="ot">=</span> a</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>id_2_2(_, b) <span class="ot">=</span> b</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>id_3_1, id_3_2,<span class="ot"> id_3_3 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>id_3_1(a, _, _) <span class="ot">=</span> a</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>id_3_2(_, b, _) <span class="ot">=</span> b</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>id_3_3(_, _, c) <span class="ot">=</span> c</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>id_4_1, id_4_2, id_4_3,<span class="ot"> id_4_4 ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>id_4_1(a, _, _, _) <span class="ot">=</span> a</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>id_4_2(_, b, _, _) <span class="ot">=</span> b</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>id_4_3(_, _, c, _) <span class="ot">=</span> c</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>id_4_4(_, _, _, d) <span class="ot">=</span> d</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">-- ad nauseam...</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">-- use default id to mean id_1_1</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="ot">=</span> id_1_1</span></code></pre></div>
 <p>Because they’re primitive functions, their definitions are axiomatic and can be defined using regular Haskell mechanics (pattern matching, data constructors. etc). However, when defining other PR functions, you will have to strictly stick to only using these three primitive functions and other PR functions you’ve defined using the function combinators I’m about to explain below.</p>
 <h2 id="function-combinators">Function Combinators</h2>
 <p>Now we want to combine the primitive functions to build up new functions. Here’s the catch - you have to combine functions using one of two really specific function combinators. The first combinator is called Composition or just <span class="math inline">\(Cn\)</span> for short. Given a PR function <span class="math inline">\(f(x_1, ..., x_k)\)</span> and <span class="math inline">\(k\)</span> PR functions <span class="math inline">\(g_1(x_1, ..., x_n), ..., g_k(x_1, ..., x_n)\)</span>, <span class="math inline">\(Cn[f, g_1, ..., g_k]\)</span> defines a new function s.t.</p>
@@ -130,24 +130,24 @@ x_n))\]</span></p>
 <p><span class="math display">\[const_{n+1} = Cn[s, const_n]\]</span></p>
 <p>The <span class="math inline">\(const\)</span> functions act as constants in a world where everything is a function.</p>
 <p>In Haskell, I implemented <span class="math inline">\(Cn\)</span> as a higher order function, where the “givens” are supplied as part of an extra curried parameter:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ot">cn ::</span> ((<span class="dt">Nat</span>, <span class="op">...</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, <span class="co">-- f</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>       (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>), <span class="op">...</span>, (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)) <span class="co">-- g1, ..., gk</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>   <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="co">-- the created function</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">cn ::</span> ((<span class="dt">Nat</span>, <span class="op">...</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, <span class="co">-- f</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>       (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>), <span class="op">...</span>, (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)) <span class="co">-- g1, ..., gk</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>   <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="co">-- the created function</span></span></code></pre></div>
 <p>Here, the <code>a</code> represents the polymorphic function input that could be any <span class="math inline">\(n\)</span>-tuple. Of course, you can always plug in something that is not a tuple, but… please don’t, thank you 🙂. Anyway, that’s not the real problem here. The real problem is that the number of <span class="math inline">\(g\)</span> functions depend on the number of inputs f has - cn is a dependent function. The dumb solution, which I’m going to use, is to instead define multiple <code>cn</code> functions which take in different number of parameters.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="ot">cn1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>cn1(f, g1) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a))</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="ot">cn2 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>cn2(f, g1, g2) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a), g2(a))</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="ot">cn3 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>cn3(f, g1, g2, g3) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a), g2(a), g3(a))</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a><span class="co">-- ad nauseam again...</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">cn1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cn1(f, g1) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ot">cn2 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cn2(f, g1, g2) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a), g2(a))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ot">cn3 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>cn3(f, g1, g2, g3) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a), g2(a), g3(a))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- ad nauseam again...</span></span></code></pre></div>
 <p>With this, I can define <span class="math inline">\(const\)</span> as</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="fu">const</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="fu">const</span> <span class="dt">Zero</span>     <span class="ot">=</span> z</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="fu">const</span> (<span class="dt">Succ</span> n) <span class="ot">=</span> cn1(s, <span class="fu">const</span> n)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span> <span class="dt">Zero</span>     <span class="ot">=</span> z</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span> (<span class="dt">Succ</span> n) <span class="ot">=</span> cn1(s, <span class="fu">const</span> n)</span></code></pre></div>
 <p>As before, I supply the given <span class="math inline">\(n\)</span> as an extra curried parameter. Because <span class="math inline">\(n\)</span> is supposed to only be a constant, you are only allowed to plug in literals into that first argument, e.g. <code>const 2</code>.</p>
 <p>Next up is our second combinator, the titular Primitive Recursion, or <span class="math inline">\(Pr\)</span> for short. This combinator creates an inductively defined function based on the functions it is given. More specifically, given functions <span class="math inline">\(f(x_1, ..., x_n)\)</span> and <span class="math inline">\(g(x_1, ..., x_n, y_1, y_2)\)</span>, <span class="math inline">\(Pr[f, g]\)</span> defines a function s.t.</p>
 <p><span class="math display">\[\begin{alignedat}{2}
@@ -215,41 +215,41 @@ AKA
 <p><span class="math display">\[Pr_1[f, g] = Cn[Pr[f, Cn[g, id^3_2, id^3_3]], id^1_1, id^1_1]\]</span></p>
 <p>Notice that while its possible to restrict <span class="math inline">\(g\)</span> from using the ignored input <span class="math inline">\(x\)</span>, its not possible to restrict <span class="math inline">\(f\)</span> from using <span class="math inline">\(x\)</span>. As usual, please be a model citizen and only stick to using <span class="math inline">\(f = const_n\)</span> functions.</p>
 <p>Now, we can define <span class="math inline">\(Pr\)</span> in Haskell as we did with <span class="math inline">\(Cn\)</span>, by defining <code>pr1</code>, <code>pr2</code>, <code>pr3</code>, etc.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="ot">pr1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    <span class="ot">-&gt;</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>pr1(f, g) <span class="ot">=</span> cn2(pr2(f, cn2(g, id_3_2, id_3_3)), id_1_1, id_1_1)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="ot">pr2 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>pr2(f, g) <span class="ot">=</span> h</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>  <span class="kw">where</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>    h(x1, <span class="dv">0</span>)      <span class="ot">=</span> f(x1)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>    h(x1, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, y, h(x1, y))</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="ot">pr3 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>pr3(f, g) <span class="ot">=</span> h</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>  <span class="kw">where</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>    h(x1, x2, <span class="dv">0</span>)      <span class="ot">=</span> f(x1, x2)</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>    h(x1, x2, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, x2, y, h(x1, x2, y))</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a><span class="ot">pr4 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a>pr4(f, g) <span class="ot">=</span> h</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a>  <span class="kw">where</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true"></a>    h(x1, x2, x3, <span class="dv">0</span>)      <span class="ot">=</span> f(x1, x2, x3)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true"></a>    h(x1, x2, x3, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, x2, x3, y, h(x1, x2, x3, y))</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true"></a><span class="co">-- ad nauseam as usual</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true"></a></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true"></a><span class="co">-- use default pr to mean pr2</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true"></a>pr <span class="ot">=</span> pr2</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">pr1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pr1(f, g) <span class="ot">=</span> cn2(pr2(f, cn2(g, id_3_2, id_3_3)), id_1_1, id_1_1)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ot">pr2 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>pr2(f, g) <span class="ot">=</span> h</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    h(x1, <span class="dv">0</span>)      <span class="ot">=</span> f(x1)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    h(x1, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, y, h(x1, y))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ot">pr3 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>pr3(f, g) <span class="ot">=</span> h</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    h(x1, x2, <span class="dv">0</span>)      <span class="ot">=</span> f(x1, x2)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    h(x1, x2, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, x2, y, h(x1, x2, y))</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="ot">pr4 ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>pr4(f, g) <span class="ot">=</span> h</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    h(x1, x2, x3, <span class="dv">0</span>)      <span class="ot">=</span> f(x1, x2, x3)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    h(x1, x2, x3, <span class="dt">Succ</span> y) <span class="ot">=</span> g(x1, x2, x3, y, h(x1, x2, x3, y))</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">-- ad nauseam as usual</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">-- use default pr to mean pr2</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>pr <span class="ot">=</span> pr2</span></code></pre></div>
 <p>And the implementations for <span class="math inline">\(add\)</span> and <span class="math inline">\(sgn\)</span>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="ot">add ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>add <span class="ot">=</span> pr(<span class="fu">id</span>, cn1(s, id_3_3))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="ot">sgn ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>sgn <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">0</span>, cn1(<span class="fu">const</span> <span class="dv">1</span>, id_2_1))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">add ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>add <span class="ot">=</span> pr(<span class="fu">id</span>, cn1(s, id_3_3))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">sgn ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>sgn <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">0</span>, cn1(<span class="fu">const</span> <span class="dv">1</span>, id_2_1))</span></code></pre></div>
 <p>From now on, I won’t give the “mathematical” PR definition of a function anymore, as they look pretty much the same as the code.</p>
 <h1 id="some-more-examples">Some More Examples</h1>
 <p>To build up more intuition about primitive recursion, I will lay down some more examples. These examples, along with <code>add</code>, <code>const n</code> and <code>sgn</code>, will form the basis of a prelude which you can use to solve the exercises later.</p>
@@ -260,8 +260,8 @@ AKA
 &amp;mult(x, y + 1) &amp;&amp;= x + mult(x, y)
 \end{alignedat}\]</span></p>
 <p>This is easily transcribed to PR, remembering that in the recursive case of the <span class="math inline">\(Pr\)</span> combinator, <span class="math inline">\(id^3_1\)</span> would be <span class="math inline">\(x\)</span> and <span class="math inline">\(id^3_3\)</span> would be the recursive call.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">mult ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>mult <span class="ot">=</span> pr(<span class="fu">const</span> <span class="dv">0</span>, cn2(add, id_3_1, id_3_3))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">mult ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mult <span class="ot">=</span> pr(<span class="fu">const</span> <span class="dv">0</span>, cn2(add, id_3_1, id_3_3))</span></code></pre></div>
 <p>To go even further, exponentiation is just repeated <span class="math inline">\(mult\)</span>s, super-exponentiation is repeated exponentiation, etc.</p>
 <h2 id="example-2---sum-and-product-series">Example 2 - sum and product series</h2>
 <p>Sometimes we want to add or multiply the output of a given function <span class="math inline">\(f\)</span> up to a certain input value.</p>
@@ -270,13 +270,13 @@ AKA
 &amp;prod[f](x, y) &amp;&amp;= \prod_{i = 0}^y f(x, i)
 \end{alignedat}\]</span></p>
 <p>This can be implemented once again by providing the given function as a curried parameter:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="fu">sum</span><span class="ot"> ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="fu">sum</span> f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>           cn2(add, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="ot">prod ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>prod f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>            cn2(mult, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span><span class="ot"> ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span> f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           cn2(add, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ot">prod ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>prod f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            cn2(mult, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span></code></pre></div>
 <h2 id="example-3---logical-operators">Example 3 - logical operators</h2>
 <p>In order to represent boolean values, we use <span class="math inline">\(1\)</span> to represent <span class="math inline">\(\mathtt{true}\)</span> and <span class="math inline">\(0\)</span> for <span class="math inline">\(\mathtt{false}\)</span>. The simplest boolean operator is negation, which can quite simply be given as</p>
 <p><span class="math display">\[neg(x) = \begin{cases}
@@ -284,19 +284,19 @@ AKA
 0 &amp; otherwise
 \end{cases}\]</span></p>
 <p>So, this will be another case of using <span class="math inline">\(Pr\)</span> not for iteration, but just as a branching construct:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="fu">not</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="fu">not</span> <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">1</span>, cn1(<span class="fu">const</span> <span class="dv">0</span>, id_2_1))</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">not</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">not</span> <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">1</span>, cn1(<span class="fu">const</span> <span class="dv">0</span>, id_2_1))</span></code></pre></div>
 <p>Next, we can define conjunction and disjunction in terms of multiplication and addition respectively, making sure to use <span class="math inline">\(sgn\)</span> to cast any positive result to a <span class="math inline">\(1\)</span>. I find it easier to try implementing a function in terms of other functions because composition is easier to think about than primitive recursion.</p>
 <p><span class="math display">\[\begin{alignedat}{1}
 and(x, y) &amp;= sgn(mult(x, y)) \\
 or(x, y) &amp;= sgn(add(x, y))
 \end{alignedat}\]</span></p>
 <p>This is rather elegant to implement using <span class="math inline">\(Cn\)</span>, as you can see.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="fu">and</span><span class="ot"> ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="fu">and</span> <span class="ot">=</span> cn1(sgn, mult)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="fu">or</span><span class="ot"> ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="fu">or</span> <span class="ot">=</span> cn1(sgn, add)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">and</span><span class="ot"> ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">and</span> <span class="ot">=</span> cn1(sgn, mult)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">or</span><span class="ot"> ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">or</span> <span class="ot">=</span> cn1(sgn, add)</span></code></pre></div>
 <h1 id="exercises">Exercises</h1>
 <p>As promised - here are the exercises. Each exercise will have you implementing one or more PR function, using only the primitive functions, function combinators and functions defined in the prelude. You should also use functions from previous exercises.</p>
 <p>The files and solutions for the exercises can be found <a href="https://github.com/alyata/primitive-recursion">here</a>.</p>
