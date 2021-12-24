@@ -119,6 +119,7 @@ deployConfig = defaultConfiguration
 pandocMathCompiler :: Compiler (Item String)
 pandocMathCompiler =
     let mathExtensions = extensionsFromList [Ext_tex_math_dollars,
+                                             Ext_tex_math_single_backslash,
                                              Ext_latex_macros]
         defaultExtensions = writerExtensions defaultHakyllWriterOptions
         newExtensions = defaultExtensions <> mathExtensions
