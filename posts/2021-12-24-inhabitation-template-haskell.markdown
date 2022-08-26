@@ -4,9 +4,8 @@ title: Type Inhabitation in Template Haskell
 
 \usepackage{mathtools}
 <!--Production Rule -->
-\newcommand{\pr}[2]{
-    #1 & ::= & #2\\
-}
+\newcommand{\pr}[2]{{#1} & ::= & {#2}\\}
+
 <!--% OR in production rule WITHOUT single trailing white space-->
 \newcommand{\gor}{|} 
 
@@ -19,11 +18,9 @@ title: Type Inhabitation in Template Haskell
 <!--% Using Sipser[2013] definition for derives-->
 \newcommand{\derives}{\(\xRightarrow[]{\star}\)} 
 
-\newenvironment{grammar}[1]{ % grammar as an environment, 1: columns 2:data 3: derivations
-    \begin{array}{r c l}
-        #1
-    \end{array}
-}{}
+\newenvironment{grammar}{ % grammar as an environment, 1: columns 2:data 3: derivations
+    \begin{array}{r c l} 
+}{\end{array}}
 
 \require{algpseudocode}
 
@@ -39,13 +36,13 @@ fragment of Haskell that corresponds to the pure simply typed lambda calculus
 with only type variables and function types:
 
 $$
-\begin{grammar}{
+\begin{array}{r c l} 
 \pr{A, B}{\phi \gors A \implies B}
-}\end{grammar}
+\end{array}
 \qquad
-\begin{grammar}{
+\begin{array}{r c l} 
 \pr{M, N}{x \gors \lambda x.M \gors M N}
-}\end{grammar}
+\end{array}
 $$
 
 $$
@@ -254,5 +251,3 @@ Attempting to inhabit types with constants such as `Int` will often fail unless
 you populate the context with the built-in and prelude functions first, and of
 course, `$(inhabit "y" [t|forall a. (a -> a) -> a|])` causes the compiler to
 endlessly loop.
-
-# The Ben-Yelles Type Inhabitation Algorithm

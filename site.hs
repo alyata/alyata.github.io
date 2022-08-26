@@ -17,6 +17,10 @@ main :: IO ()
 main = do
   currentTime <- getCurrentTime
   hakyllWith deployConfig $ do
+    match "documents/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
