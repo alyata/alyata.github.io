@@ -6,7 +6,7 @@
         <link rel="icon" href="../images/favicon.png">
         <!--google search verification-->
         <meta name="google-site-verification" content="ssyRAtMxkWxr4l0SjqwduOsQ-hQ65oelQdISVUavsDs" />
-        <title>Alyata - Primitive Recursion in Haskell</title>
+        <title>Alyssa Renata - Primitive Recursion in Haskell</title>
         <!--firacode font-->
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
@@ -21,56 +21,82 @@
         <script>
         MathJax = {
           //CommonHTML: {linebreaks: {automatic: true, width: "container"}},
+          loader: {load: ['[tex]/bussproofs']}
           tex: {
+            packages: {'[+]': ['bussproofs']},
             tags: "all",
             tagSide: "left"
           },
         };
         </script>
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-svg.js"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     </head>
     <body>
       <div id="body">
         <div id="header">
             <div id="logo">
-                <a href="../">Alyata's Blog</a>
+                <a href="../">⊢ Alyssa Renata</a>
             </div>
             <div id="navigation">
                 <a href="../">Home</a>
-                <a href="../about.html">About</a>
                 <a href="../archive.html">Archive</a>
+		<a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
             </div>
         </div>
 
         <div id="content">
-            <h1>Primitive Recursion in Haskell</h1>
-
+            <h1> Primitive Recursion in Haskell</h1>
+            <br>
             <div class="info">
     Posted on January 10, 2021
     
 </div>
 
-<p>I’m currently working through the “Computability and Logic” textbook<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, and one of the chapters is on primitive recursive functions. Primitive recursive functions are a model of computation where everything (and yes I mean everything, including constants) is a function of the form <span class="math inline">\(\mathbb{N}^k \rightarrow \mathbb{N}\)</span>. You don’t need to know much about how it works, except that it is a very weird (and slightly excruciating) way of building functions, which is perfect for a puzzle challenge!</p>
-<p>I will give a brief overview of the building blocks in primitive recursion, followed by an implementation of each construct in Haskell. Then, I will give some examples of functions implemented using primitive recursion. Finally, there will be some fun and games where you have to implement functions using my Haskell implementation of primitive recursion. All the exercises are shamelessly taken from the book.</p>
+<p>I’m currently working through the “Computability and Logic” textbook<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, and
+one of the chapters is on primitive recursive functions. Primitive recursive
+functions are a model of computation where everything (and yes I mean
+everything, including constants) is a function of the form <span class="math inline">\(\mathbb{N}^k \rightarrow \mathbb{N}\)</span>. You don’t need to know much about how it works, except
+that it is a very weird (and slightly excruciating) way of building functions,
+which is perfect for a puzzle challenge!</p>
+<p>I will give a brief overview of the building blocks in primitive recursion,
+followed by an implementation of each construct in Haskell. Then, I will give
+some examples of functions implemented using primitive recursion. Finally, there
+will be some fun and games where you have to implement functions using my
+Haskell implementation of primitive recursion. All the exercises are
+shamelessly taken from the book.</p>
 <h1 id="what-is-primitive-recursion">What is Primitive Recursion?</h1>
-<p>In primitive recursion (PR), you start out with a small set of primitive functions, and have to compose them to build up more complex functions.</p>
+<p>In primitive recursion (PR), you start out with a small set of primitive
+functions, and have to compose them to build up more complex functions.</p>
 <h2 id="primitive-functions">Primitive Functions</h2>
 <p>The first primitive function is</p>
 <p><span class="math display">\[z(n) = 0\]</span></p>
-<p>AKA the function that ignores the one input you give it, and returns a zero. As you can see, this function looks very daft, as it’s essentially just a constant, but alas this is what we have. The next function should look more useful:</p>
+<p>AKA the function that ignores the one input you give it, and returns a zero. As
+you can see, this function looks very daft, as it’s essentially just a constant,
+but alas this is what we have. The next function should look more useful:</p>
 <p><span class="math display">\[s(n) = n + 1\]</span></p>
-<p>The successor function <span class="math inline">\(s\)</span> increments whatever single input it is given and returns it. So now we have two primitive functions, but they all only take in one input. However, remember that we’re trying to build up functions that can take in multiple arguments (<span class="math inline">\(\mathbb{N}^k\)</span>). The way we do this is with our third and last primitive function: <span class="math inline">\(id\)</span>. More precisely, <span class="math inline">\(id\)</span> is actually a family of functions that returns one of its inputs unmodified. The most basic <span class="math inline">\(id\)</span> is the one that returns its one and only input:</p>
+<p>The successor function <span class="math inline">\(s\)</span> increments whatever single input it is given and
+returns it. So now we have two primitive functions, but they all only take in
+one input. However, remember that we’re trying to build up functions that can
+take in multiple arguments (<span class="math inline">\(\mathbb{N}^k\)</span>). The way we do this is with our
+third and last primitive function: <span class="math inline">\(id\)</span>. More precisely, <span class="math inline">\(id\)</span> is actually a
+family of functions that returns one of its inputs unmodified. The most basic
+<span class="math inline">\(id\)</span> is the one that returns its one and only input:</p>
 <p><span class="math display">\[id^1_1(x_1) = x_1\]</span></p>
-<p>Next up is a pair of <span class="math inline">\(id\)</span>s that returns either the first or the second input, respectively:</p>
+<p>Next up is a pair of <span class="math inline">\(id\)</span>s that returns either the first or the second input,
+respectively:</p>
 <p><span class="math display">\[\begin{aligned}
 id^2_1(x_1, x_2) &amp;= x_1 \\
 id^2_2(x_1, x_2) &amp;= x_2
 \end{aligned}\]</span></p>
-<p>and so on, <em>ad infinitum</em>. Or really, <em>ad nauseam</em> because we’ll only be dealing with functions with at most 4 arguments this time around.</p>
-<p>So how does this look in Haskell? Before we start, the first thing we need to do is make our own natural numbers data type, using the Peano definition:</p>
+<p>and so on, <em>ad infinitum</em>. Or really, <em>ad nauseam</em> because we’ll only be dealing
+with functions with at most 4 arguments this time around.</p>
+<p>So how does this look in Haskell? Before we start, the first thing we need to do
+is make our own natural numbers data type, using the Peano definition:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Nat</span> <span class="ot">=</span> <span class="dt">Zero</span> <span class="op">|</span> <span class="dt">Succ</span> <span class="dt">Nat</span> <span class="kw">deriving</span> <span class="dt">Eq</span></span></code></pre></div>
-<p>So <code>Succ (Succ (Succ Zero))</code> would be <code>3</code>, for example. To make our lives easier, we can also implement convenience functions which let us use integer literals to define <code>Nat</code> constants, as well as print them as regular integers.</p>
+<p>So <code>Succ (Succ (Succ Zero))</code> would be <code>3</code>, for example. To make our lives
+easier, we can also implement convenience functions which let us use integer
+literals to define <code>Nat</code> constants, as well as print them as regular integers.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">Nat</span> <span class="kw">where</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">Zero</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> x <span class="ot">=</span> <span class="kw">if</span> x <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">then</span> <span class="dt">Succ</span> <span class="op">$</span> <span class="fu">fromInteger</span> (x <span class="op">-</span> <span class="dv">1</span>) <span class="kw">else</span> <span class="fu">undefined</span></span>
@@ -90,7 +116,9 @@ id^2_2(x_1, x_2) &amp;= x_2
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>λ<span class="op">&gt;</span> <span class="dv">3</span><span class="ot"> ::</span> <span class="dt">Nat</span></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span></code></pre></div>
-<p>Now, I can give the definitions of the primitive functions. I tried to make it as close to mathematical notation as possible, so all the functions are uncurried and I write my parameters in brackets.</p>
+<p>Now, I can give the definitions of the primitive functions. I tried to make it
+as close to mathematical notation as possible, so all the functions are
+uncurried and I write my parameters in brackets.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">z ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>z(_) <span class="ot">=</span> <span class="dv">0</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -119,21 +147,39 @@ id^2_2(x_1, x_2) &amp;= x_2
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">-- use default id to mean id_1_1</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span> <span class="ot">=</span> id_1_1</span></code></pre></div>
-<p>Because they’re primitive functions, their definitions are axiomatic and can be defined using regular Haskell mechanics (pattern matching, data constructors. etc). However, when defining other PR functions, you will have to strictly stick to only using these three primitive functions and other PR functions you’ve defined using the function combinators I’m about to explain below.</p>
+<p>Because they’re primitive functions, their definitions are axiomatic and can be
+defined using regular Haskell mechanics (pattern matching, data constructors.
+etc). However, when defining other PR functions, you will have to strictly stick
+to only using these three primitive functions and other PR functions you’ve
+defined using the function combinators I’m about to explain below.</p>
 <h2 id="function-combinators">Function Combinators</h2>
-<p>Now we want to combine the primitive functions to build up new functions. Here’s the catch - you have to combine functions using one of two really specific function combinators. The first combinator is called Composition or just <span class="math inline">\(Cn\)</span> for short. Given a PR function <span class="math inline">\(f(x_1, ..., x_k)\)</span> and <span class="math inline">\(k\)</span> PR functions <span class="math inline">\(g_1(x_1, ..., x_n), ..., g_k(x_1, ..., x_n)\)</span>, <span class="math inline">\(Cn[f, g_1, ..., g_k]\)</span> defines a new function s.t.</p>
+<p>Now we want to combine the primitive functions to build up new functions. Here’s
+the catch - you have to combine functions using one of two really specific
+function combinators. The first combinator is called Composition or just <span class="math inline">\(Cn\)</span>
+for short. Given a PR function <span class="math inline">\(f(x_1, ..., x_k)\)</span> and <span class="math inline">\(k\)</span> PR functions <span class="math inline">\(g_1(x_1, ..., x_n), ..., g_k(x_1, ..., x_n)\)</span>, <span class="math inline">\(Cn[f, g_1, ..., g_k]\)</span> defines a new
+function s.t.</p>
 <p><span class="math display">\[Cn[f, g_1, ..., g_k](x_1, ..., x_n) = f(g_1(x_1, ..., x_n), ..., g_k(x_1, ...,
 x_n))\]</span></p>
-<p>With this, we can define our first family of non-primitive function: <span class="math inline">\(const_n\)</span>. Given a natural number <span class="math inline">\(n\)</span>, <span class="math inline">\(const_n(x)\)</span> ignores its input and returns <span class="math inline">\(n\)</span>. To begin with, <span class="math inline">\(const_0\)</span> is really just a synonym for <span class="math inline">\(z\)</span>:</p>
+<p>With this, we can define our first family of non-primitive function: <span class="math inline">\(const_n\)</span>.
+Given a natural number <span class="math inline">\(n\)</span>, <span class="math inline">\(const_n(x)\)</span> ignores its input and returns <span class="math inline">\(n\)</span>. To
+begin with, <span class="math inline">\(const_0\)</span> is really just a synonym for <span class="math inline">\(z\)</span>:</p>
 <p><span class="math display">\[const_0 = z\]</span></p>
 <p>But we can use this to inductively define higher <span class="math inline">\(const\)</span> functions:</p>
 <p><span class="math display">\[const_{n+1} = Cn[s, const_n]\]</span></p>
-<p>The <span class="math inline">\(const\)</span> functions act as constants in a world where everything is a function.</p>
-<p>In Haskell, I implemented <span class="math inline">\(Cn\)</span> as a higher order function, where the “givens” are supplied as part of an extra curried parameter:</p>
+<p>The <span class="math inline">\(const\)</span> functions act as constants in a world where everything is a
+function.</p>
+<p>In Haskell, I implemented <span class="math inline">\(Cn\)</span> as a higher order function, where the “givens”
+are supplied as part of an extra curried parameter:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">cn ::</span> ((<span class="dt">Nat</span>, <span class="op">...</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>, <span class="co">-- f</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>       (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>), <span class="op">...</span>, (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)) <span class="co">-- g1, ..., gk</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>   <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="co">-- the created function</span></span></code></pre></div>
-<p>Here, the <code>a</code> represents the polymorphic function input that could be any <span class="math inline">\(n\)</span>-tuple. Of course, you can always plug in something that is not a tuple, but… please don’t, thank you 🙂. Anyway, that’s not the real problem here. The real problem is that the number of <span class="math inline">\(g\)</span> functions depend on the number of inputs f has - cn is a dependent function. The dumb solution, which I’m going to use, is to instead define multiple <code>cn</code> functions which take in different number of parameters.</p>
+<p>Here, the <code>a</code> represents the polymorphic function input that could be any
+<span class="math inline">\(n\)</span>-tuple. Of course, you can always plug in something that is not a tuple,
+but… please don’t, thank you 🙂. Anyway, that’s not the real problem here. The
+real problem is that the number of <span class="math inline">\(g\)</span> functions depend on the number of inputs
+f has - cn is a dependent function. The dumb solution, which I’m going to use,
+is to instead define multiple <code>cn</code> functions which take in different number of
+parameters.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">cn1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, a <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cn1(f, g1) <span class="ot">=</span> \a <span class="ot">-&gt;</span> f(g1(a))</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -148,18 +194,26 @@ x_n))\]</span></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span> <span class="dt">Zero</span>     <span class="ot">=</span> z</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">const</span> (<span class="dt">Succ</span> n) <span class="ot">=</span> cn1(s, <span class="fu">const</span> n)</span></code></pre></div>
-<p>As before, I supply the given <span class="math inline">\(n\)</span> as an extra curried parameter. Because <span class="math inline">\(n\)</span> is supposed to only be a constant, you are only allowed to plug in literals into that first argument, e.g. <code>const 2</code>.</p>
-<p>Next up is our second combinator, the titular Primitive Recursion, or <span class="math inline">\(Pr\)</span> for short. This combinator creates an inductively defined function based on the functions it is given. More specifically, given functions <span class="math inline">\(f(x_1, ..., x_n)\)</span> and <span class="math inline">\(g(x_1, ..., x_n, y_1, y_2)\)</span>, <span class="math inline">\(Pr[f, g]\)</span> defines a function s.t.</p>
+<p>As before, I supply the given <span class="math inline">\(n\)</span> as an extra curried parameter. Because <span class="math inline">\(n\)</span> is
+supposed to only be a constant, you are only allowed to plug in literals into
+that first argument, e.g. <code>const 2</code>.</p>
+<p>Next up is our second combinator, the titular Primitive Recursion, or <span class="math inline">\(Pr\)</span> for
+short. This combinator creates an inductively defined function based on the
+functions it is given. More specifically, given functions <span class="math inline">\(f(x_1, ..., x_n)\)</span>
+and <span class="math inline">\(g(x_1, ..., x_n, y_1, y_2)\)</span>, <span class="math inline">\(Pr[f, g]\)</span> defines a function s.t.</p>
 <p><span class="math display">\[\begin{alignedat}{2}
 &amp;Pr[f, g](x_1, ..., x_n, 0) &amp;&amp;= f(x_1, ..., x_n) \\
 &amp;Pr[f, g](x_1, ..., x_n, y + 1) &amp;&amp;= g(x_1, ..., x_n, y, Pr[f, g](x_1, ..., x_n, y))
 \end{alignedat}\]</span></p>
-<p>so <span class="math inline">\(Pr[f, g]\)</span> defines a function that is defined inductively on its last input<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. It is important for two reasons:</p>
+<p>so <span class="math inline">\(Pr[f, g]\)</span> defines a function that is defined inductively on its last
+input<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. It is important for two reasons:</p>
 <ol type="1">
 <li>It allows you to iterate over a given input.</li>
-<li>It gives you a branching construct, i.e. do <span class="math inline">\(f\)</span> if <span class="math inline">\(y\)</span> is zero and do <span class="math inline">\(g\)</span> otherwise.</li>
+<li>It gives you a branching construct, i.e. do <span class="math inline">\(f\)</span> if <span class="math inline">\(y\)</span> is zero and do <span class="math inline">\(g\)</span>
+otherwise.</li>
 </ol>
-<p>To illustrate each point, I will give some examples. We will start by defining addition inductively:</p>
+<p>To illustrate each point, I will give some examples. We will start by defining
+addition inductively:</p>
 <p><span class="math display">\[\begin{alignedat}{2}
 &amp;add(x, 0) &amp;&amp;= x \\
 &amp;add(x, y + 1) &amp;&amp;= s(add(x, y))
@@ -176,8 +230,10 @@ x_n))\]</span></p>
 \end{alignedat}\]</span></p>
 <p>so I can define addition using the <span class="math inline">\(Pr\)</span> combinator:</p>
 <p><span class="math display">\[add = Pr[f, g] = Pr[id^1_1, Cn[s, id^3_3]]\]</span></p>
-<p>In this case we can think of <span class="math inline">\(add(x, y)\)</span> as the procedure “iterate from 0 to y, adding 1 to x each time”.</p>
-<p>Another use case for <span class="math inline">\(Pr\)</span> is doing if-else branching. Suppose that we want to implement the sign function</p>
+<p>In this case we can think of <span class="math inline">\(add(x, y)\)</span> as the procedure “iterate from 0 to y,
+adding 1 to x each time”.</p>
+<p>Another use case for <span class="math inline">\(Pr\)</span> is doing if-else branching. Suppose that we want to
+implement the sign function</p>
 <p><span class="math display">\[sgn(y) = 
 \begin{cases} 
   0 &amp; if \space y = 0 \\
@@ -193,7 +249,13 @@ x_n))\]</span></p>
 &amp;f() &amp;&amp;= 0 \\
 &amp;g(y_1, y_2) &amp;&amp;= 1
 \end{alignedat}\]</span></p>
-<p>Wait what? <span class="math inline">\(f\)</span> has no inputs? Does that mean <span class="math inline">\(f\)</span> is a constant? We can see this goes really wrong if we try to express it in PR. <span class="math inline">\(f = const_0\)</span> doesn’t work because <span class="math inline">\(const_0\)</span> has one input. It needs an input, even if its only to be ignored. In fact, we have so far not encountered any way to construct constants, just functions (with at least 1 input). The solution to this is somewhat of a hack - we define a <span class="math inline">\(Pr\)</span> function with 2 inputs, but ignore the first (you can see that ignoring inputs is a common pattern).</p>
+<p>Wait what? <span class="math inline">\(f\)</span> has no inputs? Does that mean <span class="math inline">\(f\)</span> is a constant? We can see this
+goes really wrong if we try to express it in PR. <span class="math inline">\(f = const_0\)</span> doesn’t work
+because <span class="math inline">\(const_0\)</span> has one input. It needs an input, even if its only to be
+ignored. In fact, we have so far not encountered any way to construct constants,
+just functions (with at least 1 input). The solution to this is somewhat of a
+hack - we define a <span class="math inline">\(Pr\)</span> function with 2 inputs, but ignore the first (you can
+see that ignoring inputs is a common pattern).</p>
 <p><span class="math display">\[sgn'(x, y) =
 \begin{cases} 
   0 &amp; if \space y = 0 \\
@@ -209,12 +271,17 @@ AKA
 AKA
 </p>
 <p><span class="math display">\[sgn = Cn[sgn', id^1_1, id^1_1]\]</span></p>
-<p>To make our lives easier, we define a new <span class="math inline">\(Pr_1\)</span> combinator based on <span class="math inline">\(Pr\)</span> that applies this pattern. Given functions <span class="math inline">\(f(x)\)</span> and <span class="math inline">\(g(y_1, y_2)\)</span></p>
+<p>To make our lives easier, we define a new <span class="math inline">\(Pr_1\)</span> combinator based on <span class="math inline">\(Pr\)</span> that
+applies this pattern. Given functions <span class="math inline">\(f(x)\)</span> and <span class="math inline">\(g(y_1, y_2)\)</span></p>
 <p><span class="math display">\[Pr_1[f, g](x) = Pr[f, g'](x, x)\]</span></p>
-<p>where <span class="math inline">\(g'(x, y_1, y_2) = g(y_1, y_2)\)</span>. In purely PR notation, this is expressed as</p>
+<p>where <span class="math inline">\(g'(x, y_1, y_2) = g(y_1, y_2)\)</span>. In purely PR notation, this is expressed
+as</p>
 <p><span class="math display">\[Pr_1[f, g] = Cn[Pr[f, Cn[g, id^3_2, id^3_3]], id^1_1, id^1_1]\]</span></p>
-<p>Notice that while its possible to restrict <span class="math inline">\(g\)</span> from using the ignored input <span class="math inline">\(x\)</span>, its not possible to restrict <span class="math inline">\(f\)</span> from using <span class="math inline">\(x\)</span>. As usual, please be a model citizen and only stick to using <span class="math inline">\(f = const_n\)</span> functions.</p>
-<p>Now, we can define <span class="math inline">\(Pr\)</span> in Haskell as we did with <span class="math inline">\(Cn\)</span>, by defining <code>pr1</code>, <code>pr2</code>, <code>pr3</code>, etc.</p>
+<p>Notice that while its possible to restrict <span class="math inline">\(g\)</span> from using the ignored input <span class="math inline">\(x\)</span>,
+its not possible to restrict <span class="math inline">\(f\)</span> from using <span class="math inline">\(x\)</span>. As usual, please be a model
+citizen and only stick to using <span class="math inline">\(f = const_n\)</span> functions.</p>
+<p>Now, we can define <span class="math inline">\(Pr\)</span> in Haskell as we did with <span class="math inline">\(Cn\)</span>, by defining <code>pr1</code>,
+<code>pr2</code>, <code>pr3</code>, etc.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">pr1 ::</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>, (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> (<span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pr1(f, g) <span class="ot">=</span> cn2(pr2(f, cn2(g, id_3_2, id_3_3)), id_1_1, id_1_1)</span>
@@ -250,26 +317,35 @@ AKA
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">sgn ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>sgn <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">0</span>, cn1(<span class="fu">const</span> <span class="dv">1</span>, id_2_1))</span></code></pre></div>
-<p>From now on, I won’t give the “mathematical” PR definition of a function anymore, as they look pretty much the same as the code.</p>
+<p>From now on, I won’t give the “mathematical” PR definition of a function
+anymore, as they look pretty much the same as the code.</p>
 <h1 id="some-more-examples">Some More Examples</h1>
-<p>To build up more intuition about primitive recursion, I will lay down some more examples. These examples, along with <code>add</code>, <code>const n</code> and <code>sgn</code>, will form the basis of a prelude which you can use to solve the exercises later.</p>
+<p>To build up more intuition about primitive recursion, I will lay down some more
+examples. These examples, along with <code>add</code>, <code>const n</code> and <code>sgn</code>, will form the
+basis of a prelude which you can use to solve the exercises later.</p>
 <h2 id="example-1---multiplication">Example 1 - multiplication</h2>
-<p>We’ve seen before how to build the <span class="math inline">\(sum(x, y)\)</span> function as <span class="math inline">\(y\)</span> increments to <span class="math inline">\(x\)</span>. The multiplication function similarly can be described as repeated additions.</p>
+<p>We’ve seen before how to build the <span class="math inline">\(sum(x, y)\)</span> function as <span class="math inline">\(y\)</span> increments to
+<span class="math inline">\(x\)</span>. The multiplication function similarly can be described as repeated
+additions.</p>
 <p><span class="math display">\[\begin{alignedat}{2}
 &amp;mult(x, 0) &amp;&amp;= 0 \\
 &amp;mult(x, y + 1) &amp;&amp;= x + mult(x, y)
 \end{alignedat}\]</span></p>
-<p>This is easily transcribed to PR, remembering that in the recursive case of the <span class="math inline">\(Pr\)</span> combinator, <span class="math inline">\(id^3_1\)</span> would be <span class="math inline">\(x\)</span> and <span class="math inline">\(id^3_3\)</span> would be the recursive call.</p>
+<p>This is easily transcribed to PR, remembering that in the recursive case of the
+<span class="math inline">\(Pr\)</span> combinator, <span class="math inline">\(id^3_1\)</span> would be <span class="math inline">\(x\)</span> and <span class="math inline">\(id^3_3\)</span> would be the recursive call.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">mult ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mult <span class="ot">=</span> pr(<span class="fu">const</span> <span class="dv">0</span>, cn2(add, id_3_1, id_3_3))</span></code></pre></div>
-<p>To go even further, exponentiation is just repeated <span class="math inline">\(mult\)</span>s, super-exponentiation is repeated exponentiation, etc.</p>
+<p>To go even further, exponentiation is just repeated <span class="math inline">\(mult\)</span>s,
+super-exponentiation is repeated exponentiation, etc.</p>
 <h2 id="example-2---sum-and-product-series">Example 2 - sum and product series</h2>
-<p>Sometimes we want to add or multiply the output of a given function <span class="math inline">\(f\)</span> up to a certain input value.</p>
+<p>Sometimes we want to add or multiply the output of a given function <span class="math inline">\(f\)</span> up to a
+certain input value.</p>
 <p><span class="math display">\[\begin{alignedat}{2}
 &amp;sum[f](x, y) &amp;&amp;= \sum_{i = 0}^y f(x, i) \\
 &amp;prod[f](x, y) &amp;&amp;= \prod_{i = 0}^y f(x, i)
 \end{alignedat}\]</span></p>
-<p>This can be implemented once again by providing the given function as a curried parameter:</p>
+<p>This can be implemented once again by providing the given function as a curried
+parameter:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span><span class="ot"> ::</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>) <span class="ot">-&gt;</span> ((<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span> f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           cn2(add, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span>
@@ -278,15 +354,21 @@ AKA
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>prod f <span class="ot">=</span> pr(cn2(f, <span class="fu">id</span>, z),</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            cn2(mult, id_3_3, cn2(f, id_3_1, cn1(s, id_3_2))))</span></code></pre></div>
 <h2 id="example-3---logical-operators">Example 3 - logical operators</h2>
-<p>In order to represent boolean values, we use <span class="math inline">\(1\)</span> to represent <span class="math inline">\(\mathtt{true}\)</span> and <span class="math inline">\(0\)</span> for <span class="math inline">\(\mathtt{false}\)</span>. The simplest boolean operator is negation, which can quite simply be given as</p>
+<p>In order to represent boolean values, we use <span class="math inline">\(1\)</span> to represent <span class="math inline">\(\mathtt{true}\)</span>
+and <span class="math inline">\(0\)</span> for <span class="math inline">\(\mathtt{false}\)</span>. The simplest boolean operator is negation, which
+can quite simply be given as</p>
 <p><span class="math display">\[neg(x) = \begin{cases}
 1 &amp; if \space x = 0 \\
 0 &amp; otherwise
 \end{cases}\]</span></p>
-<p>So, this will be another case of using <span class="math inline">\(Pr\)</span> not for iteration, but just as a branching construct:</p>
+<p>So, this will be another case of using <span class="math inline">\(Pr\)</span> not for iteration, but just
+as a branching construct:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">not</span><span class="ot"> ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">not</span> <span class="ot">=</span> pr1(<span class="fu">const</span> <span class="dv">1</span>, cn1(<span class="fu">const</span> <span class="dv">0</span>, id_2_1))</span></code></pre></div>
-<p>Next, we can define conjunction and disjunction in terms of multiplication and addition respectively, making sure to use <span class="math inline">\(sgn\)</span> to cast any positive result to a <span class="math inline">\(1\)</span>. I find it easier to try implementing a function in terms of other functions because composition is easier to think about than primitive recursion.</p>
+<p>Next, we can define conjunction and disjunction in terms of multiplication and
+addition respectively, making sure to use <span class="math inline">\(sgn\)</span> to cast any positive result to a
+<span class="math inline">\(1\)</span>. I find it easier to try implementing a function in terms of other functions
+because composition is easier to think about than primitive recursion.</p>
 <p><span class="math display">\[\begin{alignedat}{1}
 and(x, y) &amp;= sgn(mult(x, y)) \\
 or(x, y) &amp;= sgn(add(x, y))
@@ -298,37 +380,49 @@ or(x, y) &amp;= sgn(add(x, y))
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">or</span><span class="ot"> ::</span> (<span class="dt">Nat</span>, <span class="dt">Nat</span>) <span class="ot">-&gt;</span> <span class="dt">Nat</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">or</span> <span class="ot">=</span> cn1(sgn, add)</span></code></pre></div>
 <h1 id="exercises">Exercises</h1>
-<p>As promised - here are the exercises. Each exercise will have you implementing one or more PR function, using only the primitive functions, function combinators and functions defined in the prelude. You should also use functions from previous exercises.</p>
-<p>The files and solutions for the exercises can be found <a href="https://github.com/alyata/primitive-recursion">here</a>.</p>
+<p>As promised - here are the exercises. Each exercise will have you implementing
+one or more PR function, using only the primitive functions, function
+combinators and functions defined in the prelude. You should also use functions
+from previous exercises.</p>
+<p>The files and solutions for the exercises can be found
+<a href="https://github.com/alyata/primitive-recursion">here</a>.</p>
 <h2 id="exercise-1">Exercise 1</h2>
 <p>Implement</p>
 <ul>
-<li><p>The difference function <span class="math display">\[diff(x, y) = \begin{cases}
+<li><p>The difference function
+<span class="math display">\[diff(x, y) = \begin{cases}
 x - y &amp; if \space x &gt; y \\
 0     &amp; otherwise
 \end{cases}\]</span></p></li>
-<li><p>The ordering relation (<span class="math inline">\(\leq\)</span>) <span class="math display">\[leq(x, y) = \begin{cases}
+<li><p>The ordering relation (<span class="math inline">\(\leq\)</span>)
+<span class="math display">\[leq(x, y) = \begin{cases}
 1 &amp; if \space x \leq y \\
 0 &amp; otherwise
 \end{cases}\]</span></p></li>
-<li><p>You might also want to define <span class="math inline">\(\geq\)</span>, <span class="math inline">\(&lt;\)</span>, <span class="math inline">\(&gt;\)</span>, <span class="math inline">\(=\)</span> based on <span class="math inline">\(\leq\)</span> for convenience.</p></li>
+<li><p>You might also want to define <span class="math inline">\(\geq\)</span>, <span class="math inline">\(&lt;\)</span>, <span class="math inline">\(&gt;\)</span>, <span class="math inline">\(=\)</span> based on <span class="math inline">\(\leq\)</span> for
+convenience.</p></li>
 </ul>
 <h2 id="exercise-2">Exercise 2</h2>
 <p>Implement</p>
 <ul>
-<li><p>the absolute difference function <span class="math display">\[absdiff(x, y) = \begin{cases}
+<li><p>the absolute difference function
+<span class="math display">\[absdiff(x, y) = \begin{cases}
 x - y &amp; if \space x &gt; y \\
 y - x &amp; otherwise
 \end{cases}\]</span></p></li>
-<li><p>the maximum function (and minimum, if you feel like it) <span class="math display">\[max(x, y) = \begin{cases}
+<li><p>the maximum function (and minimum, if you feel like it)
+<span class="math display">\[max(x, y) = \begin{cases}
 x &amp; if \space x &gt; y \\
 y &amp; otherwise
 \end{cases}\]</span></p></li>
 </ul>
 <h2 id="exercise-3">Exercise 3</h2>
-<p>Implement integer division by defining the quotient and remainder functions. You might find it easier to define the remainder function first and then use it in your quotient function definition.</p>
+<p>Implement integer division by defining the quotient and remainder functions. You
+might find it easier to define the remainder function first and then use it in
+your quotient function definition.</p>
 <h2 id="exercise-4">Exercise 4</h2>
-<p>It’s possible to define a pair-encoding function that assigns a unique natural number to each possible pair of natural numbers. Implement one such function:</p>
+<p>It’s possible to define a pair-encoding function that assigns a unique natural
+number to each possible pair of natural numbers. Implement one such function:</p>
 <p><span class="math display">\[\begin{alignedat}{2}
 pair(0, 0) &amp;= 0 \\
 \\
@@ -348,20 +442,25 @@ pair(3, 0) &amp;= 9 \\
 <p>This function can be more succintly defined as</p>
 <p><span class="math display">\[pair(x, y) = \frac{(x + y)^2 + 3x + y}{2}\]</span></p>
 <h2 id="exercise-5">Exercise 5</h2>
-<p>For this final exercise, define the pair-decoding functions <span class="math inline">\(fst\)</span> and <span class="math inline">\(snd\)</span>. If <span class="math inline">\(pair(x, y) = n\)</span> then <span class="math inline">\(fst(n) = x\)</span> and <span class="math inline">\(snd(n) = y\)</span>. Consider defining a helper function to help you define <span class="math inline">\(fst\)</span> or <span class="math inline">\(snd\)</span>.</p>
-<section class="footnotes" role="doc-endnotes">
+<p>For this final exercise, define the pair-decoding functions <span class="math inline">\(fst\)</span> and <span class="math inline">\(snd\)</span>. If
+<span class="math inline">\(pair(x, y) = n\)</span> then <span class="math inline">\(fst(n) = x\)</span> and <span class="math inline">\(snd(n) = y\)</span>. Consider defining a helper
+function to help you define <span class="math inline">\(fst\)</span> or <span class="math inline">\(snd\)</span>.</p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>Boolos, George &amp; Burgess, John &amp; Jeffrey, Richard. (2007). Computability and Logic. 10.1017/CBO9780511804076.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>This means primitive recursive computations always terminate, so it is not turing complete.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Boolos, George &amp; Burgess, John &amp; Jeffrey, Richard. (2007). Computability
+and Logic. 10.1017/CBO9780511804076.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>This means primitive recursive computations always terminate, so it is not
+turing complete.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
         </div>
         <div id="footer">
-          <div id="github-link">
-            <a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
-          </div>
+          <!-- <div id="github-link"> -->
+          <!--   <a class='fab fa-github' target="_blank" -->
+          <!--      href='https://github.com/alyata' /> -->
+          <!-- </div> -->
           <div id="hakyll-link">
             Site proudly generated by 
             <a target="_blank" href="http://jaspervdj.be/hakyll">Hakyll</a>

@@ -6,7 +6,7 @@
         <link rel="icon" href="../images/favicon.png">
         <!--google search verification-->
         <meta name="google-site-verification" content="ssyRAtMxkWxr4l0SjqwduOsQ-hQ65oelQdISVUavsDs" />
-        <title>Alyata - Setting up this blog using Hakyll</title>
+        <title>Alyssa Renata - Setting up this blog using Hakyll</title>
         <!--firacode font-->
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
@@ -21,40 +21,46 @@
         <script>
         MathJax = {
           //CommonHTML: {linebreaks: {automatic: true, width: "container"}},
+          loader: {load: ['[tex]/bussproofs']}
           tex: {
+            packages: {'[+]': ['bussproofs']},
             tags: "all",
             tagSide: "left"
           },
         };
         </script>
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-svg.js"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     </head>
     <body>
       <div id="body">
         <div id="header">
             <div id="logo">
-                <a href="../">Alyata's Blog</a>
+                <a href="../">⊢ Alyssa Renata</a>
             </div>
             <div id="navigation">
                 <a href="../">Home</a>
-                <a href="../about.html">About</a>
                 <a href="../archive.html">Archive</a>
+		<a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
             </div>
         </div>
 
         <div id="content">
-            <h1>Setting up this blog using Hakyll</h1>
-
+            <h1> Setting up this blog using Hakyll</h1>
+            <br>
             <div class="info">
     Posted on December 15, 2020
     
 </div>
 
-<p>To kick things off, I will write about the birth of this blog. I decided to use Hakyll, which is a static site generator written in Haskell. It uses its own domain-specific language (DSL) for configuration, hosted within Haskell.</p>
-<p>FYI: I wrote this in a Google docs and then transferred it to a real blog post once the site was set up.</p>
+<p>To kick things off, I will write about the birth of this blog. I decided to use
+Hakyll, which is a static site generator written in Haskell. It uses its own
+domain-specific language (DSL) for configuration, hosted within Haskell.</p>
+<p>FYI: I wrote this in a Google docs and then transferred it to a real blog post
+once the site was set up.</p>
 <h1 id="installation">Installation</h1>
-<p>The setup process started off rather rocky - following the Hakyll tutorial, I ran <code>stack install hakyll</code> and immediately encountered the following error.</p>
+<p>The setup process started off rather rocky - following the Hakyll tutorial, I
+ran <code>stack install hakyll</code> and immediately encountered the following error.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode abc"><code class="sourceCode abc"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Error<span class="ch">:</span> While constructing the build plan, the following exceptions were </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>encountered<span class="ch">:</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -76,24 +82,65 @@
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  7ed2f9f,36933</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>Plan construction failed.</span></code></pre></div>
-<p>Hakyll seems to be using a much older version of Pandoc than what is available. I tried following the recommended action of adding <code>pandoc-2.10</code> to my global dependencies, but this seems to lead down a rabbit hole where <code>pandoc-2.10</code> requires unmatched dependencies which themselves have unmatched dependencies, etc. I also tried setting <code>allow-newer: true</code>, in the hopes that Hakyll will be able to build with a newer version of Pandoc anyway, but alas that was not the case…</p>
-<p>After a Google search for similar problems, the solution seems to be using a different package resolver. Indeed, the <a href="https://www.stackage.org/package/hakyll" target="_blank">stackage page for Hakyll</a> mentions the <code>lts-16.26</code> resolver (at the time of writing) whereas my resolver on stack is <code>lts-14.17</code>. Therefore to “resolve” the issue, I just had to specify the resolver via <code>stack install hakyll --resolver lts-16.26</code>. Now Hakyll installs successfully!</p>
+<p>Hakyll seems to be using a much older version of Pandoc than what is available.
+I tried following the recommended action of adding <code>pandoc-2.10</code> to my global
+dependencies, but this seems to lead down a rabbit hole where <code>pandoc-2.10</code>
+requires unmatched dependencies which themselves have unmatched dependencies,
+etc. I also tried setting <code>allow-newer: true</code>, in the hopes that Hakyll will be
+able to build with a newer version of Pandoc anyway, but alas that was not the
+case…</p>
+<p>After a Google search for similar problems, the solution seems to be using a
+different package resolver. Indeed, the <a href="https://www.stackage.org/package/hakyll" target="_blank">stackage page for
+Hakyll</a> mentions the
+<code>lts-16.26</code> resolver (at the time of writing) whereas my resolver on stack is
+<code>lts-14.17</code>. Therefore to “resolve” the issue, I just had to specify the
+resolver via <code>stack install hakyll --resolver lts-16.26</code>. Now Hakyll installs
+successfully!</p>
 <h1 id="initializing-the-site">Initializing the site</h1>
-<p>The next step is to start a github pages repo and initialize a template Hakyll site in it. To start a github pages repo, all I had to do was create a repo with the name <code>alyata.github.io</code>. Then any html files on the repo’s master branch can be accessed by opening <code>alyata.github.io/path/to/file.html</code> on the browser, though it takes a couple minutes to refresh pushed content sometimes. If there is a <code>index.html</code> file on the root of the repo, then this can be accessed just by opening the site <code>alyata.github.io</code>.</p>
-<p>I then cloned the repo and initialized a stack project inside the folder using the existing Hakyll project template: <code>stack new --bare alyata-blog hakyll-template --resolver lts-16.26</code>. Here’s a dissection of the command:</p>
+<p>The next step is to start a github pages repo and initialize a template Hakyll
+site in it. To start a github pages repo, all I had to do was create a repo with
+the name <code>alyata.github.io</code>. Then any html files on the repo’s master branch can
+be accessed by opening <code>alyata.github.io/path/to/file.html</code> on the browser,
+though it takes a couple minutes to refresh pushed content sometimes. If there
+is a <code>index.html</code> file on the root of the repo, then this can be accessed just
+by opening the site <code>alyata.github.io</code>.</p>
+<p>I then cloned the repo and initialized a stack project inside the folder using
+the existing Hakyll project template:
+<code>stack new --bare alyata-blog hakyll-template --resolver lts-16.26</code>.
+Here’s a dissection of the command:</p>
 <ul>
 <li><p><code>new</code> - create a new project.</p></li>
-<li><p><code>--bare</code> - create the project in the current directory. Default, non-bare behavior is to create a new directory.</p></li>
-<li><p><code>alyata-blog</code> - name of the project. This would be the name of the new directory if –bare was not used.</p></li>
-<li><p><code>hakyll-template</code> - use the Hakyll project template that initializes a bare bones blog site.</p></li>
-<li><p><code>--resolver lts-16.26</code> - use the same package resolver I installed Hakyll with.</p></li>
+<li><p><code>--bare</code> - create the project in the current directory. Default, non-bare
+behavior is to create a new directory.</p></li>
+<li><p><code>alyata-blog</code> - name of the project. This would be the name of the new
+directory if –bare was not used.</p></li>
+<li><p><code>hakyll-template</code> - use the Hakyll project template that initializes a bare
+bones blog site.</p></li>
+<li><p><code>--resolver lts-16.26</code> - use the same package resolver I installed Hakyll
+with.</p></li>
 </ul>
-<p>This generated a haskell source file along with some directories and configuration files which I committed to a new <code>develop</code> branch. Finally, I compiled the project using <code>stack build</code>. The compiled program is the site generator, which generates the html/css files for the actual site. I can run the generator by running <code>stack exec alyata-blog build</code>, which will then generate the entire site in the <code>_site</code> folder. This is slightly confusing as both are build commands - just keep in mind that the latter builds the site, and the former builds the builder… (Who watches the watchmen?)</p>
-<p>To keep things separate, the code for the generator goes to the <code>develop</code> branch, while the result of running the compiled generator goes to the <code>master</code> branch to be displayed. To do this, I ran the generator, switched back to <code>master</code> branch and copied everything in the output folder <code>_site</code> to the root of the branch. After committing and pushing the freshly copied files, I was able to see the template site online:</p>
+<p>This generated a haskell source file along with some directories and
+configuration files which I committed to a new <code>develop</code> branch. Finally, I
+compiled the project using <code>stack build</code>. The compiled program is the site
+generator, which generates the html/css files for the actual site. I can run the
+generator by running <code>stack exec alyata-blog build</code>, which will then generate
+the entire site in the <code>_site</code> folder. This is slightly confusing as both are
+build commands - just keep in mind that the latter builds the site, and the
+former builds the builder… (Who watches the watchmen?)</p>
+<p>To keep things separate, the code for the generator goes to the <code>develop</code>
+branch, while the result of running the compiled generator goes to the <code>master</code>
+branch to be displayed. To do this, I ran the generator, switched back to
+<code>master</code> branch and copied everything in the output folder <code>_site</code> to the root
+of the branch. After committing and pushing the freshly copied files, I was able
+to see the template site online:</p>
 <p><img src="../images/screenshot_of_site.png" style="width:100.0%" /></p>
-<p>I will have to do this every time I want to deploy a change in the <code>develop</code> branch, which sounds rather tedious. Therefore, my next step was to configure a deploy command for doing all of these steps automatically.</p>
+<p>I will have to do this every time I want to deploy a change in the <code>develop</code>
+branch, which sounds rather tedious. Therefore, my next step was to configure
+a deploy command for doing all of these steps automatically.</p>
 <h1 id="configuring-deployment">Configuring deployment</h1>
-<p>The deployment script is as follows, which is largely adapted from the github pages tutorial on the hakyll site. Hopefully the script itself is self-explanatory.</p>
+<p>The deployment script is as follows, which is largely adapted from the github
+pages tutorial on the hakyll site. Hopefully the script itself is
+self-explanatory.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># deploys the site to the master branch</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -135,10 +182,17 @@
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-D</span> master</span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> stash pop</span></code></pre></div>
 <h1 id="finishing-touches">Finishing touches</h1>
-<p>To make the blog not look like it came from the early 2000s, I imported the Bootstrap css which at least makes the fonts nicer, as you see it right now. This is a simple (but really long) one-liner:</p>
+<p>To make the blog not look like it came from the early 2000s, I imported the
+Bootstrap css which at least makes the fonts nicer, as you see it right now.
+This is a simple (but really long) one-liner:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;link</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css&quot;</span> <span class="er">rel</span><span class="ot">=</span><span class="st">&quot;stylesheet&quot;</span> <span class="er">integrity</span><span class="ot">=</span><span class="st">&quot;sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1&quot;</span> <span class="er">crossorigin</span><span class="ot">=</span><span class="st">&quot;anonymous&quot;</span><span class="kw">&gt;</span></span></code></pre></div>
-<p>A more up-to-date version of this import can be found on the Bootstrap <a href="https://getbootstrap.com/docs/5.0/getting-started/introduction/" target="_blank">quickstart page</a>.</p>
-<p>I also added syntax highlighting by copying the Pandoc <a href="https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css" target="_blank">syntax highlighting css file</a> from the official hakyll repository. Finally, for the cherry on top I added the following css styles which add borders around code blocks:</p>
+<p>A more up-to-date version of this import can be found on the Bootstrap
+<a href="https://getbootstrap.com/docs/5.0/getting-started/introduction/" target="_blank">quickstart
+page</a>.</p>
+<p>I also added syntax highlighting by copying the Pandoc <a href="https://github.com/jaspervdj/hakyll/blob/master/web/css/syntax.css" target="_blank">syntax highlighting css
+file</a>
+from the official hakyll repository. Finally, for the cherry on top I added the
+following css styles which add borders around code blocks:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode css"><code class="sourceCode css"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">/* box around inline code */</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>code {</span>
@@ -155,13 +209,15 @@
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">padding</span>: <span class="dv">8</span><span class="dt">px</span><span class="op">;</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">margin-bottom</span>: <span class="dv">2</span><span class="dt">em</span><span class="op">;</span></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>And that’s it! It’s still very close to the original template, but this is fine for now because I like the default layout anyway and CSS is a <em>headache</em>.</p>
+<p>And that’s it! It’s still very close to the original template, but this is fine
+for now because I like the default layout anyway and CSS is a <em>headache</em>.</p>
 
         </div>
         <div id="footer">
-          <div id="github-link">
-            <a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
-          </div>
+          <!-- <div id="github-link"> -->
+          <!--   <a class='fab fa-github' target="_blank" -->
+          <!--      href='https://github.com/alyata' /> -->
+          <!-- </div> -->
           <div id="hakyll-link">
             Site proudly generated by 
             <a target="_blank" href="http://jaspervdj.be/hakyll">Hakyll</a>

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="../images/favicon.png">
+        <!--google search verification-->
+        <meta name="google-site-verification" content="ssyRAtMxkWxr4l0SjqwduOsQ-hQ65oelQdISVUavsDs" />
+        <title>Alyssa Renata - Type Inhabitation in Template Haskell</title>
+        <!--firacode font-->
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+        <!--fontawesome-->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" />
+        <!--bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+        <!--custom styling-->
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+        <!--mathjax-->
+        <script>
+        MathJax = {
+          //CommonHTML: {linebreaks: {automatic: true, width: "container"}},
+          loader: {load: ['[tex]/bussproofs']}
+          tex: {
+            packages: {'[+]': ['bussproofs']},
+            tags: "all",
+            tagSide: "left"
+          },
+        };
+        </script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    </head>
+    <body>
+      <div id="body">
+        <div id="header">
+            <div id="logo">
+                <a href="../">⊢ Alyssa Renata</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../archive.html">Archive</a>
+		<a class="fab fa-github" target="_blank" href="https://github.com/alyata"></a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1> Type Inhabitation in Template Haskell</h1>
+            <br>
+            <div class="info">
+    Posted on December 24, 2021
+    
+</div>
+
+<!--Production Rule -->
+<!--% OR in production rule WITHOUT single trailing white space-->
+<!--% OR in production rule WITH single trailing white space-->
+<!--% Alias for \Rightarrow using Sipser[2013] the definition for yields -->
+<!--% Using Sipser[2013] definition for derives-->
+<p>Template Haskell allows us to write metaprograms, in the code-as-data sense of
+programs that manipulate Haskell code (in syntax tree form, represented as
+ADTs). In principle, this allows us to write a program that takes in the code of
+a Haskell type, and finds a term that satisfies this type - this is the type
+inhabitation problem. I will attempt to do exactly this, but only for the
+fragment of Haskell that corresponds to the pure simply typed lambda calculus
+with only type variables and function types:</p>
+<p><span class="math display">\[
+\begin{array}{r c l} 
+{A, B} &amp; ::= &amp; {\phi \ |\ A \rightarrow B}\\
+\end{array}
+\qquad
+\begin{array}{r c l} 
+{M, N} &amp; ::= &amp; {x \ |\ \lambda x.M \ |\ M N}\\
+\end{array}
+\]</span></p>
+<p><span class="math display">\[
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$(\textrm{Ax})$}
+\UnaryInfC{$\Gamma, A \vdash A$}
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\AxiomC{$\Gamma, A \vdash B$}
+\RightLabel{$(\rightarrow\textrm{I})$}
+\UnaryInfC{$\Gamma \vdash A \rightarrow B$}
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\AxiomC{$\Gamma \vdash A \rightarrow B$}
+\AxiomC{$\Gamma \vdash A$}
+\RightLabel{$(\rightarrow\textrm{E})$}
+\BinaryInfC{$\Gamma \vdash B$}
+\end{prooftree}
+\]</span></p>
+<h1 id="basics-of-untyped-template-haskell">Basics of (Untyped) Template Haskell</h1>
+<p>We will be working with the untyped variant of Template Haskell where we can
+build up program terms that won’t type check. The typed variant is safer to work
+with but more complicated (perhaps a future post). The key components of Template
+Haskell are:
+1. the <code>Exp</code>, <code>Type</code>, <code>Dec</code> and <code>Pat</code> data types which represent the syntax
+trees of expressions, types, function declarations and patterns (for pattern
+matching) respectively
+2. the <code>quote</code> monad typeclass (concretely instantiated by the <code>Q</code>
+datatype) which encapsulates information about the syntax tree we are
+building, including auxiliary information such as variable counters for
+generating fresh variables. Given a term of type <code>Q Exp</code> for example we
+can unquote it using the <code>$(...)</code> operator which during compilation is
+replaced by the code built up in the <code>Q Exp</code> term we pass in.</p>
+<p>Here’s an example generating the n-argument <code>curry</code> function,
+courtesy of the <a href="https://wiki.haskell.org/A_practical_Template_Haskell_Tutorial">Haskell wiki</a>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Curry</span> <span class="kw">where</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Language.Haskell.TH</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- given n, construct the lambda term that performs currying for n arguments</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ot">curryN ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> <span class="dt">Exp</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>curryN n <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  f  <span class="ot">&lt;-</span> newName <span class="st">&quot;f&quot;</span>                         <span class="co">-- newName generates a fresh name based on the</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  xs <span class="ot">&lt;-</span> replicateM n (newName <span class="st">&quot;x&quot;</span>)          <span class="co">-- given string by appending a counter number</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> args <span class="ot">=</span> <span class="fu">map</span> <span class="dt">VarP</span> (f<span class="op">:</span>xs)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      ntup <span class="ot">=</span> <span class="dt">TupE</span> (<span class="fu">map</span> <span class="dt">VarE</span> xs)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="dt">LamE</span> args (<span class="dt">AppE</span> (<span class="dt">VarE</span> f) ntup)   <span class="co">-- builds the code for \f x1 ... xn -&gt; f (x1 ... xn)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ot">genCurries ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>genCurries n <span class="ot">=</span> forM [<span class="dv">1</span><span class="op">..</span>n] mkCurryDec</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    mkCurryDec ith <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      cury <span class="ot">&lt;-</span> curryN ith</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="kw">let</span> name <span class="ot">=</span> mkName <span class="op">$</span> <span class="st">&quot;curry&quot;</span> <span class="op">++</span> <span class="fu">show</span> ith          <span class="co">-- mkName verbatim converts the given </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span> <span class="op">$</span> <span class="dt">FunD</span> name [<span class="dt">Clause</span> [] (<span class="dt">NormalB</span> cury) []] <span class="co">-- string into a name, unlike newName</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="co">-- builds the curry declarations curry15 = \f x1 ... x15 -&gt; f (x1 ... x15)</span></span></code></pre></div>
+<p>As long as these functions are defined <em>in another module</em>, we can import them
+and unquote the result of applying these functions:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Curry</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">curry4 ::</span> ((a, b, c, d) <span class="ot">-&gt;</span> e) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c <span class="ot">-&gt;</span> d <span class="ot">-&gt;</span> e</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>curry4 <span class="ot">=</span> <span class="op">$</span>(curryN <span class="dv">4</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- you can also unquote the list of declarations directly. This declares curry1,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- curry2 ... curry100</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(genCurries <span class="dv">100</span>)</span></code></pre></div>
+<h1 id="a-naive-attempt-at-type-inhabitation">A Naive Attempt at Type inhabitation</h1>
+<p>There’s a simple type inhabitation algorithm that we can start with, that finds
+normal forms of a given type. Here is its pseudocode:</p>
+<pre><code>inhabitation Γ (A -&gt; B) = λx. M
+  where
+    x is a fresh variable
+    M = inhabitation (Γ, x:A) B
+
+inhabitation Γ B = x M_1 ... M_n
+    where
+      x:A_1 -&gt; ... -&gt; A_n -&gt; B ∈ Γ (for some n ≥ 0)
+      M_i = inhabitation Γ A_i (for each 1 ≤ i ≤ n)</code></pre>
+<p>This algorithm does not terminate for certain types such as <code>(A -&gt; A) -&gt; A</code>: to
+begin with, we add <code>x:A -&gt; A</code> to the empty context and recursively attempt to
+inhabit <code>A</code> with this new context. In attempting to do so, the only suitable
+variable in the context is <code>x:A -&gt; A</code>, which has <code>A</code> as its only input type.
+Hence we must recursively attempt to inhabit <code>A</code> with the same context as
+before, so we are stuck in an infinite loop. We hopefully can do better than
+this, but its a good place to start.</p>
+<p>To begin with, what should the type of the function be? For the context, we
+represent this as a list of tuples mapping variable names to types. The function
+is expected to return a program of the given type, but it may fail, so we should
+return a <code>Q (Maybe Exp)</code>. However, dealing with nested monads is annoying so
+instead, we go for the transformer <code>MaybeT Q Exp</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">inhabitation ::</span> [(<span class="dt">Name</span>, <span class="dt">Type</span>)] <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">MaybeT</span> <span class="dt">Q</span> <span class="dt">Exp</span></span></code></pre></div>
+<p>In the first case for types <code>A -&gt; B</code>, we have a rather straightforward
+translation from pseudocode:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>inhabitation cxt (<span class="dt">AppT</span> (<span class="dt">AppT</span> <span class="dt">ArrowT</span> t1) t2) <span class="ot">=</span> <span class="kw">do</span> <span class="co">-- arrow type constructor is partially applied</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> lift <span class="op">$</span> newName <span class="st">&quot;x&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  body <span class="ot">&lt;-</span> inhabitation ((x, t1)<span class="op">:</span>cxt) t2</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="dt">LamE</span> [<span class="dt">VarP</span> x] body</span></code></pre></div>
+<p>In the second case, things are slightly more complicated, mostly due to having
+to deal with the recursive structure of repeated arrows and lambda applications:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>inhabitation cxt t <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">head</span>, headType) <span class="ot">&lt;-</span> <span class="dt">MaybeT</span> <span class="op">.</span> <span class="fu">return</span> <span class="op">$</span> find correctReturnType cxt</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  args <span class="ot">&lt;-</span> <span class="fu">mapM</span> (inhabitation cxt) (getInputTypes headType)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="fu">foldl</span> <span class="dt">AppE</span> (<span class="dt">VarE</span> <span class="fu">head</span>) args</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- This is used to check whether there is an x:A_1 -&gt; ... -&gt; A_n -&gt; B ∈ Γ</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ot">    correctReturnType ::</span> (<span class="dt">Name</span>, <span class="dt">Type</span>) <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    correctReturnType (x, <span class="dt">AppT</span> (<span class="dt">AppT</span> <span class="dt">ArrowT</span> _) ret)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">|</span> t <span class="op">==</span> ret  <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> correctReturnType (x, ret)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    correctReturnType (_, ret) <span class="ot">=</span> t <span class="op">==</span> ret</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- This collects the input types A_1 ... A_n into a list so we can</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- recursively map the inhabitation function, and fold the result into a</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- repeatedly applied term</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    getInputTypes (<span class="dt">AppT</span> (<span class="dt">AppT</span> <span class="dt">ArrowT</span> input) rest)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      <span class="ot">=</span> input <span class="op">:</span> getInputTypes rest</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    getInputTypes ret</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>      <span class="ot">=</span> []</span></code></pre></div>
+<p>With this, we can set up a convenience function to wrap around <code>inhabitation</code> by
+converting the output into a <code>Q (Maybe Exp)</code> and actually setting up a
+declaration.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- this will give an exception if the inhabitation returned empty-handed</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ot">inhabit ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>inhabit name typ <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> typ</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  term <span class="ot">&lt;-</span> liftM fromJust <span class="op">$</span> inhabitation' t</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">$</span> [<span class="dt">FunD</span> (mkName name) [<span class="dt">Clause</span> [] (<span class="dt">NormalB</span> term) []]]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ot">inhabitation' ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> (<span class="dt">Maybe</span> <span class="dt">Exp</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>inhabitation' (<span class="dt">ForallT</span> _ _ t) <span class="ot">=</span> inhabitation t <span class="co">-- See below for why we need to unwrap foralls</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>inhabitation' t <span class="ot">=</span> runMaybeT <span class="op">$</span> inhabitation' [] t</span></code></pre></div>
+<p><code>inhabit</code> should now allow us to construct function declarations built by type
+inhabitation. However, we have to build up a <code>Type</code> syntax tree to pass in,
+which is tedious. Luckily, there’s a quasi-quoter feature of Template Haskell
+that lets us convert regular typed code into syntax tree objects. This is best
+shown by example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>[t|Int -&gt; Int|] ≡ <span class="dt">AppT</span> (<span class="dt">AppT</span> <span class="dt">ArrowT</span> (<span class="dt">ConT</span> <span class="op">$</span> mkName <span class="st">&quot;Int&quot;</span>)) (<span class="dt">ConT</span> <span class="op">$</span> mkName <span class="st">&quot;Int&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>[t|a -&gt; b -&gt; a|] ≡ an <span class="fu">error</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>because the <span class="kw">type</span> variables a <span class="fu">and</span> b occur free<span class="op">.</span> <span class="dt">The</span> alternative is to <span class="fu">either</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>build the syntax tree by constructors, <span class="fu">or</span> bind it using a <span class="kw">forall</span> <span class="fu">and</span> <span class="kw">then</span> later</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>remove the <span class="kw">forall</span> types (as <span class="dt">I</span> did <span class="kw">in</span> inhabitation')<span class="op">.</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>[t|forall a. a -&gt; a|] ≡ <span class="dt">ForallT</span> [<span class="dt">PlainTV</span> a_2 <span class="dt">SpecifiedSpec</span>] [] </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                        (<span class="dt">AppT</span> (<span class="dt">AppT</span> <span class="dt">ArrowT</span> (<span class="dt">VarT</span> a_2)) (<span class="dt">VarT</span> a_2))</span></code></pre></div>
+<p>Finally, this allows us to declare new functions by type inhabitation:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(inhabit <span class="st">&quot;i&quot;</span> [t|forall a. a -&gt; a|])</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(inhabit <span class="st">&quot;k&quot;</span> [t|forall a b. a -&gt; b -&gt; a|])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(inhabit <span class="st">&quot;s&quot;</span> [t|forall a b c. (a -&gt; b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c|])</span></code></pre></div>
+<p>Because the declarations are not typed, the compiler will infer the principal
+type from the program that was found, which leads to a curious effect:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(inhabit <span class="st">&quot;k'&quot;</span> [t|forall a. a -&gt; a -&gt; a|])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- but ghci gives:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- ghci&gt; :t k'</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- k' :: p1 -&gt; p2 -&gt; p2</span></span></code></pre></div>
+<p>Attempting to inhabit types with constants such as <code>Int</code> will often fail unless
+you populate the context with the built-in and prelude functions first, and of
+course, <code>$(inhabit "y" [t|forall a. (a -&gt; a) -&gt; a|])</code> causes the compiler to
+endlessly loop.</p>
+
+        </div>
+        <div id="footer">
+          <!-- <div id="github-link"> -->
+          <!--   <a class='fab fa-github' target="_blank" -->
+          <!--      href='https://github.com/alyata' /> -->
+          <!-- </div> -->
+          <div id="hakyll-link">
+            Site proudly generated by 
+            <a target="_blank" href="http://jaspervdj.be/hakyll">Hakyll</a>
+          </div>
+        </div>
+      </div>
+    </body>
+</html>
