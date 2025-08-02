@@ -56,7 +56,8 @@
 <p>I’m currently working through the “Computability and Logic” textbook<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, and
 one of the chapters is on primitive recursive functions. Primitive recursive
 functions are a model of computation where everything (and yes I mean
-everything, including constants) is a function of the form <span class="math inline">\(\mathbb{N}^k \rightarrow \mathbb{N}\)</span>. You don’t need to know much about how it works, except
+everything, including constants) is a function of the form <span class="math inline">\(\mathbb{N}^k
+\rightarrow \mathbb{N}\)</span>. You don’t need to know much about how it works, except
 that it is a very weird (and slightly excruciating) way of building functions,
 which is perfect for a puzzle challenge!</p>
 <p>I will give a brief overview of the building blocks in primitive recursion,
@@ -156,7 +157,8 @@ defined using the function combinators I’m about to explain below.</p>
 <p>Now we want to combine the primitive functions to build up new functions. Here’s
 the catch - you have to combine functions using one of two really specific
 function combinators. The first combinator is called Composition or just <span class="math inline">\(Cn\)</span>
-for short. Given a PR function <span class="math inline">\(f(x_1, ..., x_k)\)</span> and <span class="math inline">\(k\)</span> PR functions <span class="math inline">\(g_1(x_1, ..., x_n), ..., g_k(x_1, ..., x_n)\)</span>, <span class="math inline">\(Cn[f, g_1, ..., g_k]\)</span> defines a new
+for short. Given a PR function <span class="math inline">\(f(x_1, ..., x_k)\)</span> and <span class="math inline">\(k\)</span> PR functions <span class="math inline">\(g_1(x_1,
+..., x_n), ..., g_k(x_1, ..., x_n)\)</span>, <span class="math inline">\(Cn[f, g_1, ..., g_k]\)</span> defines a new
 function s.t.</p>
 <p><span class="math display">\[Cn[f, g_1, ..., g_k](x_1, ..., x_n) = f(g_1(x_1, ..., x_n), ..., g_k(x_1, ...,
 x_n))\]</span></p>
