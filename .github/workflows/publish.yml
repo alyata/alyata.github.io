@@ -9,7 +9,7 @@ jobs:
           ref: develop
       - uses: haskell/actions/setup@v1
         with:
-          ghc-version: '9.2.4'
+          ghc-version: '9.10.2'
       - uses: actions/cache@v2
         with:
           path: |
