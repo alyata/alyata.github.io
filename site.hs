@@ -7,6 +7,8 @@ import           Data.String              (fromString)
 import           Data.Time.Format         (formatTime, defaultTimeLocale)
 import           Data.Time.Clock          (getCurrentTime)
 
+import           Control.Monad            (forM)
+import Debug.Trace
 import           Text.Pandoc.Highlighting (styleToCss)
 import           Text.Pandoc.Options
 
@@ -74,6 +76,31 @@ main = do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
+    match "images/gallery/*" $ do
+        route idRoute
+        compile copyFileCompiler 
+
+    match "people/*" $ do
+        route idRoute
+        compile $ do
+            getResourceBody
+            >>= loadAndApplyTemplate "templates/default.html" personCtx
+            >>= relativizeUrls
+
+    create ["photos.html"] $ do
+        route idRoute
+        compile $ do
+            people <- loadAll "people/*"
+            let ctx =
+                    listField "people" personCtx (return people) <>
+                    constField "title" "Gallery"                 <>
+                    defaultContext
+            
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/gallery.html" ctx
+                >>= loadAndApplyTemplate "templates/default.html" ctx
+                >>= relativizeUrls
+
     match "templates/*" $ compile templateCompiler
 
     create ["sitemap.xml"] $ do
@@ -99,9 +126,23 @@ main = do
 
 -- Auxiliary Values ------------------------------------------------------------
 
+peoplePhotoCompiler :: [Item String] -> Compiler [Item String]
+peoplePhotoCompiler people = do
+    let yarr = traceShow people
+    forM people $ \person -> do
+        let hello = traceId "hello"
+        loadAndApplyTemplate "templates/thumbnail.html" defaultContext person
+     
+
 -- url of this website
 root :: String
 root = "https://alyata.github.io"
+
+personCtx :: Context String
+personCtx = defaultContext
+        <> field "thumbnail-src" getThumbnailSrc
+    where 
+        getThumbnailSrc person = getMetadataField' (itemIdentifier person) "thumbnail-src"
 
 -- context values for a post
 postCtx :: Context String

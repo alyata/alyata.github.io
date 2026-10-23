@@ -179,3 +179,7 @@ span.math.display>mjx-container {
   padding-top: 2px;
   padding-bottom: 2px;
 }
+
+.gallery-img {
+  width: 20%;
+}
